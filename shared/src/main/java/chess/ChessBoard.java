@@ -7,10 +7,9 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private final ChessPiece[][] pieces;
+    private final ChessPiece[][] pieces = new ChessPiece[8][8];
 
     public ChessBoard() {
-        pieces = new ChessPiece[8][8];
         resetBoard();
     }
 
@@ -49,7 +48,7 @@ public class ChessBoard {
         int row = position.getRow();
         int col = position.getColumn();
 
-        return pieces[row][col];
+        return pieces[row - 1][col - 1];
     }
 
     /**
@@ -78,7 +77,10 @@ public class ChessBoard {
                         new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN),
                         new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)
                 },
-                {}, {}, {}, {},
+                { null, null, null, null, null, null, null, null },
+                { null, null, null, null, null, null, null, null },
+                { null, null, null, null, null, null, null, null },
+                { null, null, null, null, null, null, null, null },
                 {
                         new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN),
                         new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN),
@@ -90,14 +92,14 @@ public class ChessBoard {
                         new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)
                 },
                 {
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK)
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)
                 }
         };
 
@@ -106,5 +108,34 @@ public class ChessBoard {
                 pieces[row][col] = newPieces[row][col];
             }
         }
+    }
+
+    @Override
+
+    public boolean equals(Object obj) {
+
+        if (this == obj)
+            return true;
+
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        ChessBoard that = (ChessBoard) obj;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece thisPiece = pieces[row][col];
+                ChessPiece thatPiece = that.pieces[row][col];
+                if (thisPiece == null && thatPiece == null) {
+                    continue;
+                }
+                if (!thisPiece.equals(thatPiece)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+
     }
 }

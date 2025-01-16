@@ -156,4 +156,19 @@ public class ChessPiece {
         // Add en passant moves
         // TODO: Implement en passant
     }
+
+    @Override
+
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof ChessPiece)) {
+            return false;
+        }
+
+        ChessPiece other = (ChessPiece) obj;
+        return pieceColor == other.pieceColor && type == other.type;
+    }
 }
