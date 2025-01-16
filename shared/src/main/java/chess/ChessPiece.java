@@ -5,6 +5,8 @@ import java.util.Collection;
 
 import java.util.Iterator;
 
+import chess.ChessGame.TeamColor;
+
 /**
  * Represents a single chess piece
  * <p>
@@ -113,9 +115,14 @@ public class ChessPiece {
     }
 
     private void addMoveIfValid(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int rowChange, int colChange) {
-        ChessPosition endPosition = new ChessPosition(myPosition.getRow() + rowChange, myPosition.getColumn() + colChange);
-        if (board.getPiece(endPosition) == null || board.getPiece(endPosition).getTeamColor() != pieceColor) {
-            moves.add(new ChessMove(myPosition, endPosition));
+        try {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + rowChange, myPosition.getColumn() + colChange);
+            if (board.getPiece(endPosition) == null || board.getPiece(endPosition).getTeamColor() != pieceColor) {
+                moves.add(new ChessMove(myPosition, endPosition));
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Invalid move so do nothing
+            return;
         }
     }
 
@@ -123,13 +130,17 @@ public class ChessPiece {
         for (int[] direction : directions) {
             int rowChange = direction[0];
             int colChange = direction[1];
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + rowChange, myPosition.getColumn() + colChange);
-            while (board.getPiece(endPosition) == null) {
-                moves.add(new ChessMove(myPosition, endPosition));
-                endPosition = new ChessPosition(endPosition.getRow() + rowChange, endPosition.getColumn() + colChange);
-            }
-            if (board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() != pieceColor) {
-                moves.add(new ChessMove(myPosition, endPosition));
+            try {
+                ChessPosition endPosition = new ChessPosition(myPosition.getRow() + rowChange, myPosition.getColumn() + colChange);
+                while (board.getPiece(endPosition) == null) {
+                    moves.add(new ChessMove(myPosition, endPosition));
+                    endPosition = new ChessPosition(endPosition.getRow() + rowChange, endPosition.getColumn() + colChange);
+                }
+                if (board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() != pieceColor) {
+                    moves.add(new ChessMove(myPosition, endPosition));
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                continue;
             }
         }
     }
@@ -138,7 +149,7 @@ public class ChessPiece {
         ChessPosition endPosition = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn());
         if (board.getPiece(endPosition) == null) {
             moves.add(new ChessMove(myPosition, endPosition));
-            if (myPosition.getRow() == 2 || myPosition.getRow() == 7) {
+            if ((myPosition.getRow() == 2  && pieceColor == TeamColor.WHITE) || (myPosition.getRow() == 7 && pieceColor == TeamColor.BLACK)) {
                 endPosition = new ChessPosition(myPosition.getRow() + 2 * direction, myPosition.getColumn());
                 if (board.getPiece(endPosition) == null) {
                     moves.add(new ChessMove(myPosition, endPosition));
@@ -147,18 +158,43 @@ public class ChessPiece {
         }
 
         for (int colChange : new int[] { -1, 1 }) {
-            endPosition = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn() + colChange);
-            if (board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() != pieceColor) {
-                moves.add(new ChessMove(myPosition, endPosition));
+            try {
+                endPosition = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn() + colChange);
+                if (board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() != pieceColor) {
+                    moves.add(new ChessMove(myPosition, endPosition));
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                continue;
             }
         }
 
         // Add en passant moves
         // TODO: Implement en passant
+
+        Iterator<ChessMove> iterator = moves.iterator();
+        Collection<ChessMove> promotionMoves = new ArrayList<>();
+        while (iterator.hasNext()) {
+            ChessMove move = iterator.next();
+            if (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8) {
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), PieceType.QUEEN));
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), PieceType.ROOK));
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), PieceType.BISHOP));
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), PieceType.KNIGHT));
+                iterator.remove();
+            }
+        }
+        moves.addAll(promotionMoves);
     }
 
-    @Override
 
+    @Override
+    public int hashCode() {
+        int result = pieceColor.hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
+    }
+    
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;

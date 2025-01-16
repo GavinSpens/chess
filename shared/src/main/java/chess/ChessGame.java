@@ -122,4 +122,19 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
+    @Override
+
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof ChessGame)) {
+            return false;
+        }
+
+        ChessGame other = (ChessGame) obj;
+        return teamTurn == other.teamTurn && board.equals(other.board);
+    }
 }

@@ -31,4 +31,24 @@ public class ChessPosition {
     public int getColumn() {
         return col;
     }
+
+
+    @Override
+    public int hashCode() {
+        int result = row;
+        result = 31 * result + col;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof ChessPosition)) {
+            return false;
+        }
+        ChessPosition pos = (ChessPosition) obj;
+        return pos.row == row && pos.col == col;
+    }
 }
