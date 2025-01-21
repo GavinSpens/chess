@@ -1,5 +1,7 @@
 package chess;
 
+import chess.ChessGame.TeamColor;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -8,9 +10,21 @@ package chess;
  */
 public class ChessBoard {
     private final ChessPiece[][] pieces = new ChessPiece[8][8];
+    private ChessPosition whiteKingPosition = null;
+    private ChessPosition blackKingPosition = null;
 
     public ChessBoard() {
-        
+    }
+
+    public ChessBoard(ChessBoard board) {
+        ChessPiece[][] boardPieces = board.getPieces();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                pieces[row][col] = boardPieces[row][col];
+            }
+        }
+        whiteKingPosition = board.whiteKingPosition;
+        blackKingPosition = board.blackKingPosition;
     }
 
     /**
@@ -24,6 +38,14 @@ public class ChessBoard {
         int col = position.getColumn();
 
         pieces[row - 1][col - 1] = piece;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            if (piece.getTeamColor() == TeamColor.WHITE) {
+                whiteKingPosition = position;
+            } else {
+                blackKingPosition = position;
+            }
+        }
     }
 
     /**
@@ -35,6 +57,14 @@ public class ChessBoard {
     public void movePiece(ChessPosition from, ChessPosition to) {
         pieces[to.getRow()][to.getColumn()] = pieces[from.getRow()][from.getColumn()];
         pieces[from.getRow()][from.getColumn()] = null;
+
+        if (pieces[to.getRow()][to.getColumn()].getPieceType() == ChessPiece.PieceType.KING) {
+            if (pieces[to.getRow()][to.getColumn()].getTeamColor() == TeamColor.WHITE) {
+                whiteKingPosition = to;
+            } else {
+                blackKingPosition = to;
+            }
+        }
     }
 
     /**
@@ -49,6 +79,31 @@ public class ChessBoard {
         int col = position.getColumn();
 
         return pieces[row - 1][col - 1];
+    }
+
+    public ChessPiece getKing(TeamColor teamColor) {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = pieces[row][col];
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING
+                        && piece.getTeamColor() == teamColor) {
+                    return piece;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ChessPosition getKingPosition(TeamColor teamColor) {
+        if (teamColor == TeamColor.WHITE) {
+            return whiteKingPosition;
+        } else {
+            return blackKingPosition;
+        }
+    }
+
+    public ChessPiece[][] getPieces() {
+        return pieces;
     }
 
     /**
@@ -136,6 +191,5 @@ public class ChessBoard {
         }
 
         return true;
-
     }
 }
