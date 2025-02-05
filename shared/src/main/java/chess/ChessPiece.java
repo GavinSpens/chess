@@ -97,49 +97,7 @@ public class ChessPiece {
                 }
             }
         }
-        castleMoves(board, myPosition);
         return moves;
-    }
-
-    private void castleMoves(ChessBoard board, ChessPosition myPosition) {
-        if (myPosition.getRow() != 1 && myPosition.getRow() != 8) {
-            return;
-        }
-        if (myPosition.getColumn() != 5) {
-            return;
-        }
-        ChessPosition leftRookPos = new ChessPosition(myPosition.getRow(), 1);
-        ChessPosition rightRookPos = new ChessPosition(myPosition.getRow(), 8);
-        ChessPiece leftRook = board.getPiece(leftRookPos);
-        ChessPiece rightRook = board.getPiece(rightRookPos);
-        ArrayList<ChessPiece> pieces = new ArrayList<>();
-
-        // left castle
-        for (int i = 2; i < 5; i++) {
-            ChessPosition pos = new ChessPosition(myPosition.getRow(), i);
-            pieces.add(board.getPiece(pos));
-        }
-        if (leftRook != null &&
-                leftRook.getPieceType() == PieceType.ROOK &&
-                leftRook.getTeamColor() == pieceColor) {
-            if (pieces.isEmpty()) {
-                moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), 3), null));
-            }
-        }
-
-        // right castle
-        pieces.clear();
-        for (int i = 6; i < 8; i++) {
-            ChessPosition pos = new ChessPosition(myPosition.getRow(), i);
-            pieces.add(board.getPiece(pos));
-        }
-        if (rightRook != null &&
-                rightRook.getPieceType() == PieceType.ROOK &&
-                rightRook.getTeamColor() == pieceColor) {
-            if (pieces.isEmpty()) {
-                moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), 7), null));
-            }
-        }
     }
 
     private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
