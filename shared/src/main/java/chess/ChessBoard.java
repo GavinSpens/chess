@@ -18,8 +18,12 @@ public class ChessBoard {
         board = new ChessPiece[8][8];
     }
 
-    public ChessBoard(ChessPiece[][] board) {
-        this.board = board;
+    public ChessBoard deepCopy() {
+        ChessBoard newBoard = new ChessBoard();
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(board[i], 0, newBoard.board[i], 0, 8);
+        }
+        return newBoard;
     }
 
     /**
@@ -49,10 +53,10 @@ public class ChessBoard {
         ChessPiece.PieceType promo = move.getPromotionPiece();
         ChessPiece piece = getPiece(startPos);
 
-        board[startPos.getColumn() - 1][startPos.getRow() - 1] = null;
-        board[endPos.getColumn() - 1][endPos.getRow() - 1] = piece;
+        this.board[startPos.getRow() - 1][startPos.getColumn() - 1] = null;
+        this.board[endPos.getRow() - 1][endPos.getColumn() - 1] = piece;
         if (promo != null) {
-            board[endPos.getRow() - 1][endPos.getColumn() - 1] =
+            this.board[endPos.getRow() - 1][endPos.getColumn() - 1] =
                     new ChessPiece(piece.getTeamColor(), promo);
         }
     }
@@ -60,7 +64,7 @@ public class ChessBoard {
     public ChessPosition getKingPos(ChessGame.TeamColor color) {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
-                ChessPiece piece = board[i - 1][j - 1];
+                ChessPiece piece = getPiece(new ChessPosition(i, j));
                 if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color) {
                     return new ChessPosition(i, j);
                 }
@@ -72,7 +76,7 @@ public class ChessBoard {
     public boolean isInCheck(ChessGame.TeamColor teamColor) {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
-                ChessPiece piece = board[i - 1][j - 1];
+                ChessPiece piece = getPiece(new ChessPosition(i, j));
                 if (piece == null) {
                     continue;
                 }

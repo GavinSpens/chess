@@ -60,7 +60,7 @@ public class ChessGame {
 
         Collection<ChessMove> removeMoves = new ArrayList<>();
         for (ChessMove move : moves) {
-            ChessBoard checkBoard = new ChessBoard(gameBoard.board);
+            ChessBoard checkBoard = gameBoard.deepCopy();
             checkBoard.movePiece(move);
             if (checkBoard.isInCheck(myColor)) {
                 removeMoves.add(move);
@@ -79,12 +79,9 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
         if (validMoves.contains(move)) {
-            ChessBoard checkBoard = new ChessBoard(gameBoard.board);
-            checkBoard.movePiece(move);
-            if (checkBoard.isInCheck(gameBoard.getPiece(move.getStartPosition()).getTeamColor())) {
-                throw new InvalidMoveException("This move puts you in check");
-            }
-            gameBoard = checkBoard;
+            gameBoard.movePiece(move);
+        } else {
+            throw new InvalidMoveException("Invalid move");
         }
     }
 
@@ -118,12 +115,8 @@ public class ChessGame {
             }
         }
         for (ChessPosition startPos : startPositions) {
-            for (ChessMove move : validMoves(startPos)) {
-                ChessBoard checkBoard = new ChessBoard(gameBoard.board);
-                checkBoard.movePiece(move);
-                if (!checkBoard.isInCheck(teamColor)) {
-                    return false;
-                }
+            if (!validMoves(startPos).isEmpty()) {
+                return false;
             }
         }
         return true;
@@ -150,12 +143,8 @@ public class ChessGame {
             }
         }
         for (ChessPosition startPos : startPositions) {
-            for (ChessMove move : validMoves(startPos)) {
-                ChessBoard checkBoard = new ChessBoard(gameBoard.board);
-                checkBoard.movePiece(move);
-                if (!checkBoard.isInCheck(teamColor)) {
-                    return false;
-                }
+            if (!validMoves(startPos).isEmpty()) {
+                return false;
             }
         }
         return true;
