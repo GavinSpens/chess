@@ -55,7 +55,19 @@ public class ChessGame {
         if (gameBoard.getPiece(startPosition) == null) {
             return null;
         }
-        return gameBoard.getPiece(startPosition).pieceMoves(gameBoard, startPosition);
+        Collection<ChessMove> moves = gameBoard.getPiece(startPosition).pieceMoves(gameBoard, startPosition);
+        TeamColor myColor = gameBoard.getPiece(startPosition).getTeamColor();
+
+        Collection<ChessMove> removeMoves = new ArrayList<>();
+        for (ChessMove move : moves) {
+            ChessBoard checkBoard = new ChessBoard(gameBoard.board);
+            checkBoard.movePiece(move);
+            if (checkBoard.isInCheck(myColor)) {
+                removeMoves.add(move);
+            }
+        }
+        moves.removeAll(removeMoves);
+        return moves;
     }
 
     /**

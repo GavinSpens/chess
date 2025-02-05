@@ -49,10 +49,10 @@ public class ChessBoard {
         ChessPiece.PieceType promo = move.getPromotionPiece();
         ChessPiece piece = getPiece(startPos);
 
-        board[startPos.getColumn()][startPos.getRow()] = null;
-        board[endPos.getColumn()][endPos.getRow()] = piece;
+        board[startPos.getColumn() - 1][startPos.getRow() - 1] = null;
+        board[endPos.getColumn() - 1][endPos.getRow() - 1] = piece;
         if (promo != null) {
-            board[endPos.getRow()][endPos.getColumn()] =
+            board[endPos.getRow() - 1][endPos.getColumn() - 1] =
                     new ChessPiece(piece.getTeamColor(), promo);
         }
     }
@@ -60,8 +60,8 @@ public class ChessBoard {
     public ChessPosition getKingPos(ChessGame.TeamColor color) {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
-                ChessPiece piece = board[i][j];
-                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                ChessPiece piece = board[i - 1][j - 1];
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color) {
                     return new ChessPosition(i, j);
                 }
             }
@@ -72,7 +72,7 @@ public class ChessBoard {
     public boolean isInCheck(ChessGame.TeamColor teamColor) {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
-                ChessPiece piece = board[i][j];
+                ChessPiece piece = board[i - 1][j - 1];
                 if (piece == null) {
                     continue;
                 }
