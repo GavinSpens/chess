@@ -1,13 +1,11 @@
 package model;
 
-import java.util.Objects;
-
-public class UserData {
+public class RegisterRequest {
     private final String username;
     private final String password;
     private final String email;
 
-    public UserData(String username, String password, String email) {
+    public RegisterRequest(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -30,18 +28,18 @@ public class UserData {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        UserData userData = (UserData) o;
-        return Objects.equals(username, userData.username) && Objects.equals(password, userData.password) && Objects.equals(email, userData.email);
+        RegisterRequest that = (RegisterRequest) o;
+        return username.equals(that.username) && password.equals(that.password) && email.equals(that.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, password, email);
+        return username.hashCode() + password.hashCode() + email.hashCode();
     }
 
     @Override
     public String toString() {
-        return "UserData{" +
+        return "RegisterRequest{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +

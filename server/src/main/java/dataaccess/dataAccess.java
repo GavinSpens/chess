@@ -1,4 +1,9 @@
 package dataaccess;
 
-public class dataAccess {
+import model.*;
+
+public abstract class dataAccess {
+    public UserData getUser(String username) {
+        return null;
+    }
 }

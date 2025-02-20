@@ -2,12 +2,12 @@ package model;
 
 import chess.ChessGame;
 
-class GameData {
-    private int gameID;
-    private String whiteUsername;
-    private String blackUsername;
-    private String gameName;
-    private ChessGame game;
+public class GameData {
+    private final int gameID;
+    private final String whiteUsername;
+    private final String blackUsername;
+    private final String gameName;
+    private final ChessGame game;
 
     GameData(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         this.gameID = gameID;
@@ -17,5 +17,48 @@ class GameData {
         this.game = game;
     }
 
+    int getGameID() {
+        return gameID;
+    }
 
+    String getWhiteUsername() {
+        return whiteUsername;
+    }
+
+    String getBlackUsername() {
+        return blackUsername;
+    }
+
+    String getGameName() {
+        return gameName;
+    }
+
+    ChessGame getGame() {
+        return game;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GameData gameData = (GameData) o;
+        return gameID == gameData.gameID && whiteUsername.equals(gameData.whiteUsername) && blackUsername.equals(gameData.blackUsername) && gameName.equals(gameData.gameName) && game.equals(gameData.game);
+    }
+
+    @Override
+    public int hashCode() {
+        return gameID + whiteUsername.hashCode() + blackUsername.hashCode() + gameName.hashCode() + game.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "GameData{" +
+                "gameID=" + gameID +
+                ", whiteUsername='" + whiteUsername + '\'' +
+                ", blackUsername='" + blackUsername + '\'' +
+                ", gameName='" + gameName + '\'' +
+                ", game=" + game +
+                '}';
+    }
 }

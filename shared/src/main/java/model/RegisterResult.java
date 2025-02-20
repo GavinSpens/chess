@@ -1,19 +1,19 @@
 package model;
 
-public class AuthData {
+public class RegisterResult {
     private final String authToken;
     private final String username;
 
-    AuthData(String authToken, String username) {
+    public RegisterResult(String authToken, String username) {
         this.authToken = authToken;
         this.username = username;
     }
 
-    String getAuthToken() {
+    public String getAuthToken() {
         return authToken;
     }
 
-    String getUsername() {
+    public String getUsername() {
         return username;
     }
 
@@ -22,8 +22,8 @@ public class AuthData {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AuthData authData = (AuthData) o;
-        return authToken.equals(authData.authToken) && username.equals(authData.username);
+        RegisterResult that = (RegisterResult) o;
+        return authToken.equals(that.authToken) && username.equals(that.username);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class AuthData {
 
     @Override
     public String toString() {
-        return "AuthData{" +
+        return "RegisterResult{" +
                 "authToken='" + authToken + '\'' +
                 ", username='" + username + '\'' +
                 '}';
