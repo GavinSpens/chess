@@ -10,7 +10,7 @@ public abstract class UserService {
         
         UserData userData = dataAccess.getUser(username);
         if (userData != null) {
-            throw new DataAccessException("Username already exists");
+            throw new DataAccessException("Error: already taken");
         }
 
         userData = new UserData(username, request.getPassword(), request.getEmail());

@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccessException;
 import spark.*;
 
 public class Server {
@@ -14,8 +15,16 @@ public class Server {
                 "C:\\Users\\gavin\\OneDrive\\Desktop\\CS240\\chess\\server\\src\\main\\resources\\web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.get("/user", (req, res) -> {
-            return UserHandler.register(req, res);
+        Spark.post("/user", (req, res) -> {
+            try {
+                return UserHandler.register(req, res);
+            } catch (DataAccessException e) {
+                res.status(403);
+                return e.getMessage();
+            } catch (Exception e) {
+                res.status(400);
+                return "Error: bad request";
+            }
         });
 
         // home page
