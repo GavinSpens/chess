@@ -20,25 +20,25 @@ public abstract class dataAccess {
     }
 
     public static AuthData getAuth(String authToken) {
-        if (!auths.isEmpty()) {
-            for (AuthData auth : auths) {
-                if (Objects.equals(auth.getAuthToken(), authToken)) {
-                    return auth;
-                }
+        for (AuthData auth : auths) {
+            if (Objects.equals(auth.getAuthToken(), authToken)) {
+                return auth;
             }
         }
         return null;
     }
 
     public static GameData getGame(int gameId) {
-        if (!games.isEmpty()) {
-            for (GameData game : games) {
-                if (game.getGameID() == gameId) {
-                    return game;
-                }
+        for (GameData game : games) {
+            if (game.getGameID() == gameId) {
+                return game;
             }
         }
         return null;
+    }
+
+    public static GameData[] getGames() {
+        return games.toArray(new GameData[0]);
     }
 
     public static void createUser(UserData user) {
@@ -54,27 +54,28 @@ public abstract class dataAccess {
     }
 
     public static void updateGame(GameData game) {
-        int gameID = game.getGameID();
-        deleteGame(gameID);
+        games.remove(game.getGameID());
         games.add(game);
     }
 
     public static void deleteAuth(String authToken) {
+        AuthData delete = null;
         for (AuthData auth : auths) {
             if (Objects.equals(auth.getAuthToken(), authToken)) {
-                auths.remove(auth);
-                return;
+                delete = auth;
             }
         }
+        auths.remove(delete);
     }
 
     public static void deleteGame(int gameId) {
+        GameData delete = null;
         for (GameData game : games) {
             if (game.getGameID() == gameId) {
-                games.remove(game);
-                return;
+                delete = game;
             }
         }
+        games.remove(delete);
     }
 
     public static void deleteAll() {

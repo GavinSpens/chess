@@ -19,7 +19,7 @@ public abstract class UserService {
         dataAccess.createUser(userData);
 
         String authToken = createAuthToken();
-        AuthData auth = new AuthData(username, authToken);
+        AuthData auth = new AuthData(authToken, username);
         dataAccess.createAuth(auth);
 
         return new RegisterResult(authToken, username);
