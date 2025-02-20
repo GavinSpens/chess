@@ -30,7 +30,7 @@ public abstract class dataAccess {
         return null;
     }
 
-    public static GameData getGame(int gameId) throws DataAccessException {
+    public static GameData getGame(int gameId) {
         if (!games.isEmpty()) {
             for (GameData game : games) {
                 if (game.getGameID() == gameId) {
@@ -50,6 +50,12 @@ public abstract class dataAccess {
     }
 
     public static void createGame(GameData game) {
+        games.add(game);
+    }
+
+    public static void updateGame(GameData game) {
+        int gameID = game.getGameID();
+        deleteGame(gameID);
         games.add(game);
     }
 

@@ -27,6 +27,23 @@ public class Server {
             }
         });
 
+        Spark.post("/session", (req, res) -> {
+            try {
+                return UserHandler.login(req, res);
+            } catch (DataAccessException e) {
+                res.status(401);
+                return e.getMessage();
+            }
+        });
+
+        Spark.delete("/session", (req, res) -> {
+            try {
+                return UserHandler.logout(req, res);
+            } catch (DataAccessException e) {
+                return e.getMessage();
+            }
+        });
+
         // home page
         Spark.get("/", (req, res) -> {
             res.redirect("/index.html");
