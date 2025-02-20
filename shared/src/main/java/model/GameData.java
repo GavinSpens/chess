@@ -9,7 +9,7 @@ public class GameData {
     private final String gameName;
     private final ChessGame game;
 
-    GameData(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
+    public GameData(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         this.gameID = gameID;
         this.whiteUsername = whiteUsername;
         this.blackUsername = blackUsername;
@@ -17,23 +17,23 @@ public class GameData {
         this.game = game;
     }
 
-    int getGameID() {
+    public int getGameID() {
         return gameID;
     }
 
-    String getWhiteUsername() {
+    public String getWhiteUsername() {
         return whiteUsername;
     }
 
-    String getBlackUsername() {
+    public String getBlackUsername() {
         return blackUsername;
     }
 
-    String getGameName() {
+    public String getGameName() {
         return gameName;
     }
 
-    ChessGame getGame() {
+    public ChessGame getGame() {
         return game;
     }
 
