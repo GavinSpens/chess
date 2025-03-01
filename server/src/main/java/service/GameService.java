@@ -4,8 +4,6 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.*;
 
-import java.util.UUID;
-
 public abstract class GameService {
     public static GameData[] listGames(String authToken) throws DataAccessException {
         if (dataAccess.getAuth(authToken) == null) {
