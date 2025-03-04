@@ -30,7 +30,7 @@ public abstract class dataAccess {
 
     public static GameData getGame(int gameId) {
         for (GameData game : games) {
-            if (game.getGameID() == gameId) {
+            if (game.gameID() == gameId) {
                 return game;
             }
         }
@@ -38,7 +38,11 @@ public abstract class dataAccess {
     }
 
     public static GameData[] getGames() {
-        return games.toArray(new GameData[0]);
+        GameData[] gameData = new GameData[games.size()];
+        for (int i = 0; i < games.size(); i++) {
+            gameData[i] = games.get(i);
+        }
+        return gameData;
     }
 
     public static void createUser(UserData user) {
@@ -54,7 +58,7 @@ public abstract class dataAccess {
     }
 
     public static void updateGame(GameData game) {
-        games.remove(game.getGameID());
+        games.remove(game.gameID() - 1);
         games.add(game);
     }
 
@@ -66,16 +70,6 @@ public abstract class dataAccess {
             }
         }
         auths.remove(delete);
-    }
-
-    public static void deleteGame(int gameId) {
-        GameData delete = null;
-        for (GameData game : games) {
-            if (game.getGameID() == gameId) {
-                delete = game;
-            }
-        }
-        games.remove(delete);
     }
 
     public static void deleteAll() {

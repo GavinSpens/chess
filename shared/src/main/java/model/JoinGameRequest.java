@@ -1,15 +1,13 @@
 package model;
 
-import chess.ChessGame.TeamColor;
-
 import java.util.Objects;
 
 public class JoinGameRequest {
     private final String playerColor;
-    private final int gameID;
+    private final Integer gameID;
     private final String authToken;
 
-    public JoinGameRequest(String playerColor, int gameID, String authToken) {
+    public JoinGameRequest(String playerColor, Integer gameID, String authToken) {
         this.gameID = gameID;
         this.playerColor = playerColor;
         this.authToken = authToken;
@@ -25,7 +23,7 @@ public class JoinGameRequest {
         return playerColor;
     }
 
-    public int getGameID() {
+    public Integer getGameID() {
         return gameID;
     }
 
@@ -39,7 +37,9 @@ public class JoinGameRequest {
             return false;
         }
         JoinGameRequest that = (JoinGameRequest) o;
-        return gameID == that.gameID && playerColor == that.playerColor && authToken == that.authToken;
+        return Objects.equals(gameID, that.gameID)
+                && Objects.equals(playerColor, that.playerColor)
+                && Objects.equals(authToken, that.authToken);
     }
 
     @Override

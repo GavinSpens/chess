@@ -2,40 +2,10 @@ package model;
 
 import chess.ChessGame;
 
-public class GameData {
-    private final int gameID;
-    private final String whiteUsername;
-    private final String blackUsername;
-    private final String gameName;
-    private final ChessGame game;
+import java.util.Objects;
 
-    public GameData(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
-        this.gameID = gameID;
-        this.whiteUsername = whiteUsername;
-        this.blackUsername = blackUsername;
-        this.gameName = gameName;
-        this.game = game;
-    }
-
-    public int getGameID() {
-        return gameID;
-    }
-
-    public String getWhiteUsername() {
-        return whiteUsername;
-    }
-
-    public String getBlackUsername() {
-        return blackUsername;
-    }
-
-    public String getGameName() {
-        return gameName;
-    }
-
-    public ChessGame getGame() {
-        return game;
-    }
+public record GameData(Integer gameID, String whiteUsername,
+                       String blackUsername, String gameName, ChessGame game) {
 
     @Override
     public boolean equals(Object o) {
@@ -43,12 +13,11 @@ public class GameData {
             return false;
         }
         GameData gameData = (GameData) o;
-        return gameID == gameData.gameID && whiteUsername.equals(gameData.whiteUsername) && blackUsername.equals(gameData.blackUsername) && gameName.equals(gameData.gameName) && game.equals(gameData.game);
-    }
-
-    @Override
-    public int hashCode() {
-        return gameID + whiteUsername.hashCode() + blackUsername.hashCode() + gameName.hashCode() + game.hashCode();
+        return Objects.equals(gameID, gameData.gameID)
+                && whiteUsername.equals(gameData.whiteUsername)
+                && blackUsername.equals(gameData.blackUsername)
+                && gameName.equals(gameData.gameName)
+                && game.equals(gameData.game);
     }
 
     @Override

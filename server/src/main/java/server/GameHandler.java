@@ -7,28 +7,24 @@ import com.google.gson.Gson;
 
 import dataaccess.DataAccessException;
 
-import javax.xml.crypto.Data;
-
 public abstract class GameHandler {
-    public static String listGames(Request req, Response res) throws DataAccessException {
+    public static ListGamesResult listGames(Request req, Response res) throws DataAccessException {
         String authToken = req.headers("Authorization");
-        return new Gson().toJson(GameService.listGames(authToken));
+        return GameService.listGames(authToken);
     }
 
-    public static String createGame(Request req, Response res) throws DataAccessException {
+    public static CreateGameResult createGame(Request req, Response res) throws DataAccessException {
         String authToken = req.headers("Authorization");
         myString gameName = getBody(req, myString.class);
         CreateGameRequest createGameRequest = new CreateGameRequest(gameName.getMystring(), authToken);
-        CreateGameResult result = GameService.createGame(createGameRequest);
-        return new Gson().toJson(result);
+        return GameService.createGame(createGameRequest);
     }
 
-    public static String joinGame(Request req, Response res) throws Exception {
+    public static CreateGameResult joinGame(Request req, Response res) throws Exception {
         String authToken = req.headers("Authorization");
         JoinGameReq joinReq = getBody(req, JoinGameReq.class);
         JoinGameRequest joinGameRequest = new JoinGameRequest(joinReq, authToken);
-        CreateGameResult gameID = GameService.joinGame(joinGameRequest);
-        return new Gson().toJson(gameID);
+        return GameService.joinGame(joinGameRequest);
     }
 
     private static <T> T getBody(Request request, Class<T> clazz) {

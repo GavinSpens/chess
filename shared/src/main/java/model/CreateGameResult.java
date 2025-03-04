@@ -2,14 +2,18 @@ package model;
 
 import java.util.Objects;
 
-public class CreateGameResult {
-    private final int gameID;
+public class CreateGameResult extends BaseResult {
+    private final Integer gameID;
 
-    public CreateGameResult(int gameID) {
+    public CreateGameResult(Integer gameID) {
         this.gameID = gameID;
     }
 
-    public int getGameID() {
+    public CreateGameResult() {
+        gameID = null;
+    }
+
+    public Integer getGameID() {
         return gameID;
     }
 

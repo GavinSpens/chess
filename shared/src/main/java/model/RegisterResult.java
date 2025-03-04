@@ -1,12 +1,19 @@
 package model;
 
-public class RegisterResult {
+import java.util.Objects;
+
+public class RegisterResult extends BaseResult {
     private final String authToken;
     private final String username;
 
     public RegisterResult(String authToken, String username) {
         this.authToken = authToken;
         this.username = username;
+    }
+
+    public RegisterResult() {
+        authToken = null;
+        username = null;
     }
 
     public String getAuthToken() {
@@ -23,12 +30,12 @@ public class RegisterResult {
             return false;
         }
         RegisterResult that = (RegisterResult) o;
-        return authToken.equals(that.authToken) && username.equals(that.username);
+        return Objects.equals(authToken, that.authToken) && Objects.equals(username, that.username);
     }
 
     @Override
     public int hashCode() {
-        return authToken.hashCode() + username.hashCode();
+        return Objects.hash(authToken, username);
     }
 
     @Override

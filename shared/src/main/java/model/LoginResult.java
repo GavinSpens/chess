@@ -2,13 +2,18 @@ package model;
 
 import java.util.Objects;
 
-public class LoginResult {
+public class LoginResult extends BaseResult {
     private final String username;
     private final String authToken;
 
     public LoginResult(String username, String authToken) {
         this.username = username;
         this.authToken = authToken;
+    }
+
+    public LoginResult() {
+        username = null;
+        authToken = null;
     }
 
     public String getUsername() {

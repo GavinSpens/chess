@@ -7,15 +7,21 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class UserService {
-    public static RegisterResult register(RegisterRequest request) throws DataAccessException {
+    public static RegisterResult register(RegisterRequest request) throws Exception {
         String username = request.getUsername();
+        String password = request.getPassword();
+        String email = request.getEmail();
+
+        if (username == null || password == null || email == null) {
+            throw new Exception("Error: Bad Request");
+        }
         
         UserData userData = dataAccess.getUser(username);
         if (userData != null) {
             throw new DataAccessException("Error: already taken");
         }
 
-        userData = new UserData(username, request.getPassword(), request.getEmail());
+        userData = new UserData(username, password, email);
         dataAccess.createUser(userData);
 
         String authToken = createAuthToken();
@@ -42,7 +48,7 @@ public abstract class UserService {
     public static void logout(LogoutRequest logoutRequest) throws DataAccessException {
         AuthData authData = dataAccess.getAuth(logoutRequest.getAuthToken());
         if (authData == null) {
-            throw new DataAccessException("Unauthorized");
+            throw new DataAccessException("Error: Unauthorized");
         }
         dataAccess.deleteAuth(logoutRequest.getAuthToken());
     }

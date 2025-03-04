@@ -1,8 +1,10 @@
 package server;
 
 import dataaccess.DataAccessException;
+import model.*;
 import service.GameService;
 import spark.*;
+import com.google.gson.Gson;
 
 public class Server {
 
@@ -17,68 +19,84 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", (req, res) -> {
+            RegisterResult result = new RegisterResult();
             try {
-                return UserHandler.register(req, res);
+                result = UserHandler.register(req, res);
             } catch (DataAccessException e) {
                 res.status(403);
-                return e.getMessage();
+                result.setMessage(e.getMessage());
             } catch (Exception e) {
                 res.status(400);
-                return "Error: bad request";
+                result.setMessage(e.getMessage());
             }
+            return new Gson().toJson(result);
         });
 
         Spark.post("/session", (req, res) -> {
+            LoginResult result = new LoginResult();
             try {
-                return UserHandler.login(req, res);
+                result = UserHandler.login(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
-                return e.getMessage();
+                result.setMessage(e.getMessage());
             }
+            return new Gson().toJson(result);
         });
 
         Spark.delete("/session", (req, res) -> {
+            BaseResult result = new BaseResult();
             try {
-                return UserHandler.logout(req, res);
+                result = UserHandler.logout(req, res);
             } catch (DataAccessException e) {
-                return e.getMessage();
+                res.status(401);
+                result = new BaseResult(e.getMessage());
             }
+            return new Gson().toJson(result);
         });
 
         Spark.get("/game", (req, res) -> {
+            ListGamesResult result = new ListGamesResult();
             try {
-                return GameHandler.listGames(req, res);
+                result = GameHandler.listGames(req, res);
             } catch (DataAccessException e) {
-                return e.getMessage();
+                res.status(401);
+                result.setMessage(e.getMessage());
             }
+            return new Gson().toJson(result);
         });
 
         Spark.post("/game", (req, res) -> {
+            CreateGameResult result = new CreateGameResult();
             try {
-                return GameHandler.createGame(req, res);
+                result = GameHandler.createGame(req, res);
             } catch (DataAccessException e) {
-                return e.getMessage();
+                res.status(401);
+                result.setMessage(e.getMessage());
             }
+            return new Gson().toJson(result);
         });
 
         Spark.put("/game", (req, res) -> {
+            CreateGameResult result = new CreateGameResult();
             try {
-                return GameHandler.joinGame(req, res);
+                result = GameHandler.joinGame(req, res);
             } catch (RuntimeException e) {
                 res.status(403);
-                return e.getMessage();
+                result.setMessage(e.getMessage());
             } catch (DataAccessException e) {
                 res.status(401);
-                return e.getMessage();
+                result.setMessage(e.getMessage());
             } catch (Exception e) {
                 res.status(400);
-                return e.getMessage();
+                result.setMessage(e.getMessage());
             }
+            return new Gson().toJson(result);
         });
 
         Spark.delete("/db", (req, res) -> {
+            BaseResult result = new BaseResult();
             GameService.clear();
-            return "{}";
+            return new Gson().toJson(result);
         });
 
         // home page

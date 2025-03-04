@@ -5,20 +5,20 @@ import dataaccess.*;
 import model.*;
 
 public abstract class GameService {
-    public static GameData[] listGames(String authToken) throws DataAccessException {
+    public static ListGamesResult listGames(String authToken) throws DataAccessException {
         if (dataAccess.getAuth(authToken) == null) {
-            throw new DataAccessException("Unauthorized");
+            throw new DataAccessException("Error: Unauthorized");
         }
-        return dataAccess.getGames();
+        return new ListGamesResult(dataAccess.getGames());
     }
 
     public static CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
         AuthData authData = dataAccess.getAuth(createGameRequest.getAuthToken());
         if (authData == null) {
-            throw new DataAccessException("Unauthorized");
+            throw new DataAccessException("Error: Unauthorized");
         }
 
-        int gameID = dataAccess.getGames().length;
+        int gameID = dataAccess.getGames().length + 1;
         String gameName = createGameRequest.getGameName();
 
         GameData gameData = new GameData(
@@ -31,34 +31,38 @@ public abstract class GameService {
     public static CreateGameResult joinGame(JoinGameRequest joinGameRequest) throws Exception {
         AuthData authData = dataAccess.getAuth(joinGameRequest.getAuthToken());
         if (authData == null) {
-            throw new DataAccessException("Unauthorized");
+            throw new DataAccessException("Error: Unauthorized");
         }
 
         GameData game = dataAccess.getGame(joinGameRequest.getGameID());
         if (game == null) {
-            throw new Exception("No game with given ID");
+            throw new Exception("Error: No game with given ID");
         }
 
         String myUsername = authData.getUsername();
-        String whiteUsername = game.getWhiteUsername();
-        String blackUsername = game.getBlackUsername();
+        String whiteUsername = game.whiteUsername();
+        String blackUsername = game.blackUsername();
+
+        if (joinGameRequest.getPlayerColor() == null) {
+            throw new Exception("Error: Bad Request");
+        }
 
         if (joinGameRequest.getPlayerColor().equals("WHITE")) {
             if (whiteUsername != null) {
-                throw new RuntimeException("Already Taken");
+                throw new RuntimeException("Error: Already Taken");
             }
             whiteUsername = myUsername;
         } else if (joinGameRequest.getPlayerColor().equals("BLACK")) {
             if (blackUsername != null) {
-                throw new RuntimeException("Already Taken");
+                throw new RuntimeException("Error: Already Taken");
             }
             blackUsername = myUsername;
         } else {
-            throw new Exception("Bad Request");
+            throw new Exception("Error: Bad Request");
         }
 
-        dataAccess.updateGame(new GameData(game.getGameID(), whiteUsername, blackUsername, game.getGameName(), game.getGame()));
-        return new CreateGameResult(game.getGameID());
+        dataAccess.updateGame(new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game()));
+        return new CreateGameResult(game.gameID());
     }
 
     public static void clear() {
