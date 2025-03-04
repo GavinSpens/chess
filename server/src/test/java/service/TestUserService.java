@@ -1,15 +1,11 @@
-package Service;
+package service;
 
 import dataaccess.DataAccessException;
 import model.*;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.AfterEach;
-import service.GameService;
-import service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import spark.utils.Assert;
 
 public class TestUserService {
     private final String username = "username";

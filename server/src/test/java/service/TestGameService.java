@@ -1,10 +1,8 @@
-package Service;
+package service;
 import dataaccess.DataAccessException;
 import model.*;
 
 import org.junit.jupiter.api.*;
-import service.GameService;
-import service.UserService;
 
 public class TestGameService {
     private final String username = "username";
