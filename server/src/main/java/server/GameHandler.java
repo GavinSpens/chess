@@ -16,7 +16,7 @@ public abstract class GameHandler {
     public static CreateGameResult createGame(Request req, Response res) throws DataAccessException {
         String authToken = req.headers("Authorization");
         myString gameName = getBody(req, myString.class);
-        CreateGameRequest createGameRequest = new CreateGameRequest(gameName.getMystring(), authToken);
+        CreateGameRequest createGameRequest = new CreateGameRequest(gameName.getGameName(), authToken);
         return GameService.createGame(createGameRequest);
     }
 

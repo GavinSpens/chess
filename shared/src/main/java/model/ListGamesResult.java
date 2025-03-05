@@ -1,17 +1,17 @@
 package model;
 
 public class ListGamesResult extends BaseResult {
-    private GameData[] gameData;
+    private GameData[] games;
 
     public ListGamesResult(GameData[] gameData) {
-        this.gameData = gameData;
+        this.games = gameData;
     }
 
     public ListGamesResult() {
-        gameData = null;
+        games = null;
     }
 
-    public GameData[] getGameData() {
-        return gameData;
+    public GameData[] getGames() {
+        return games;
     }
 }

@@ -52,7 +52,7 @@ public class TestGameService {
             Assertions.fail();
             return;
         }
-        Assertions.assertEquals(0, actual.getGameData().length);
+        Assertions.assertEquals(0, actual.getGames().length);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TestGameService {
             Assertions.fail();
             return;
         }
-        Assertions.assertNotEquals(0, actual.getGameData().length);
+        Assertions.assertNotEquals(0, actual.getGames().length);
     }
 
     @Test

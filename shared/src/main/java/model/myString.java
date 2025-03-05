@@ -1,13 +1,13 @@
 package model;
 
 public class myString {
-    private String mystring;
+    private String gameName;
 
-    public myString(String mystring) {
-        this.mystring = mystring;
+    public myString(String gameName) {
+        this.gameName = gameName;
     }
 
-    public String getMystring() {
-        return mystring;
+    public String getGameName() {
+        return gameName;
     }
 }
