@@ -1,9 +1,9 @@
 package model;
 
-public class myString {
+public class GameNameClass {
     private String gameName;
 
-    public myString(String gameName) {
+    public GameNameClass(String gameName) {
         this.gameName = gameName;
     }
 

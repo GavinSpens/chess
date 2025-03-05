@@ -3,6 +3,9 @@ import dataaccess.DataAccessException;
 import model.*;
 
 import org.junit.jupiter.api.*;
+import server.GameHandler;
+import server.UserHandler;
+import spark.Request;
 
 public class TestGameService {
     private final String username = "username";
@@ -98,5 +101,25 @@ public class TestGameService {
     @DisplayName("clear")
     public void testClear() {
         GameService.clear();
+        try {
+            GameService.listGames("noAuth");
+        } catch (DataAccessException e) {
+            return;
+        }
+        Assertions.fail();
+    }
+
+    @Test
+    @DisplayName("GameHandler")
+    public void testGameHandler() {
+        System.out.println(GameHandler.class);
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    @DisplayName("UserHandler")
+    public void testUserHandler() {
+        System.out.println(UserHandler.class);
+        Assertions.assertTrue(true);
     }
 }

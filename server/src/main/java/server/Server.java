@@ -14,8 +14,7 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.staticFiles.externalLocation(
-                "C:\\Users\\gavin\\OneDrive\\Desktop\\CS240\\chess\\server\\src\\main\\resources\\web");
+        Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", (req, res) -> {
