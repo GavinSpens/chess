@@ -116,21 +116,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        Collection<ChessPosition> startPositions = new ArrayList<>();
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                if (gameBoard.getPiece(position) != null && gameBoard.getPiece(position).getTeamColor() == teamColor) {
-                    startPositions.add(position);
-                }
-            }
-        }
-        for (ChessPosition startPos : startPositions) {
-            if (!validMoves(startPos).isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return kingCannotMove(teamColor);
     }
 
     /**
@@ -144,6 +130,10 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false;
         }
+        return kingCannotMove(teamColor);
+    }
+
+    private boolean kingCannotMove(TeamColor teamColor) {
         Collection<ChessPosition> startPositions = new ArrayList<>();
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {

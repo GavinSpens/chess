@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import model.*;
 
-public abstract class dataAccess {
+public abstract class DataAccess {
     public static ArrayList<UserData> users = new ArrayList<>();
     public static ArrayList<GameData> games = new ArrayList<>();
     public static ArrayList<AuthData> auths = new ArrayList<>();

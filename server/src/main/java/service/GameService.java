@@ -6,35 +6,35 @@ import model.*;
 
 public abstract class GameService {
     public static ListGamesResult listGames(String authToken) throws DataAccessException {
-        if (dataAccess.getAuth(authToken) == null) {
+        if (DataAccess.getAuth(authToken) == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
-        return new ListGamesResult(dataAccess.getGames());
+        return new ListGamesResult(DataAccess.getGames());
     }
 
     public static CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
-        AuthData authData = dataAccess.getAuth(createGameRequest.getAuthToken());
+        AuthData authData = DataAccess.getAuth(createGameRequest.getAuthToken());
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
 
-        int gameID = dataAccess.getGames().length + 1;
+        int gameID = DataAccess.getGames().length + 1;
         String gameName = createGameRequest.getGameName();
 
         GameData gameData = new GameData(
                 gameID, null, null, gameName, new ChessGame()
         );
-        dataAccess.createGame(gameData);
+        DataAccess.createGame(gameData);
         return new CreateGameResult(gameID);
     }
 
     public static CreateGameResult joinGame(JoinGameRequest joinGameRequest) throws Exception {
-        AuthData authData = dataAccess.getAuth(joinGameRequest.getAuthToken());
+        AuthData authData = DataAccess.getAuth(joinGameRequest.getAuthToken());
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
 
-        GameData game = dataAccess.getGame(joinGameRequest.getGameID());
+        GameData game = DataAccess.getGame(joinGameRequest.getGameID());
         if (game == null) {
             throw new Exception("Error: No game with given ID");
         }
@@ -61,11 +61,11 @@ public abstract class GameService {
             throw new Exception("Error: Bad Request");
         }
 
-        dataAccess.updateGame(new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game()));
+        DataAccess.updateGame(new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game()));
         return new CreateGameResult(game.gameID());
     }
 
     public static void clear() {
-        dataAccess.deleteAll();
+        DataAccess.deleteAll();
     }
 }

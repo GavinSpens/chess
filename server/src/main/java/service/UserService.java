@@ -16,17 +16,17 @@ public abstract class UserService {
             throw new Exception("Error: Bad Request");
         }
         
-        UserData userData = dataAccess.getUser(username);
+        UserData userData = DataAccess.getUser(username);
         if (userData != null) {
             throw new DataAccessException("Error: already taken");
         }
 
         userData = new UserData(username, password, email);
-        dataAccess.createUser(userData);
+        DataAccess.createUser(userData);
 
         String authToken = createAuthToken();
         AuthData auth = new AuthData(authToken, username);
-        dataAccess.createAuth(auth);
+        DataAccess.createAuth(auth);
 
         return new RegisterResult(authToken, username);
     }
@@ -34,23 +34,23 @@ public abstract class UserService {
     public static LoginResult login(LoginRequest loginRequest) throws DataAccessException {
         String username = loginRequest.getUsername();
 
-        UserData user = dataAccess.getUser(username);
+        UserData user = DataAccess.getUser(username);
         if (user == null || !Objects.equals(user.getPassword(), loginRequest.getPassword())) {
             throw new DataAccessException("Error: Unauthorized");
         }
 
         String authToken = createAuthToken();
-        dataAccess.createAuth(new AuthData(authToken, username));
+        DataAccess.createAuth(new AuthData(authToken, username));
 
         return new LoginResult(username, authToken);
     }
 
     public static void logout(LogoutRequest logoutRequest) throws DataAccessException {
-        AuthData authData = dataAccess.getAuth(logoutRequest.getAuthToken());
+        AuthData authData = DataAccess.getAuth(logoutRequest.getAuthToken());
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
-        dataAccess.deleteAuth(logoutRequest.getAuthToken());
+        DataAccess.deleteAuth(logoutRequest.getAuthToken());
     }
 
     private static String createAuthToken() {
