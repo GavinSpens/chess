@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class UserService {
-    private static final boolean useInMemoryDatabase = false;
+    private static final boolean useInMemoryDatabase = true;
 
     public static RegisterResult register(RegisterRequest request) throws Exception {
         String username = request.getUsername();

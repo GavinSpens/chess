@@ -5,7 +5,7 @@ import dataaccess.*;
 import model.*;
 
 public abstract class GameService {
-    private static final boolean useInMemoryDatabase = false;
+    private static final boolean useInMemoryDatabase = true;
 
     public static ListGamesResult listGames(String authToken) throws DataAccessException {
         AuthData authData;
