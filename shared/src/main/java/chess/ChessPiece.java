@@ -266,13 +266,12 @@ public class ChessPiece {
             }
         }
         endPosition = new ChessPosition(row + 1, col - 1);
-        if (!isOutOfBounds(endPosition)) {
-            if (blackPieceHere(board, endPosition)) {
-                if (endPosition.getRow() == 8) {
-                    moves.addAll(promotionMoves(myPosition, endPosition));
-                } else {
-                    moves.add(new ChessMove(myPosition, endPosition, null));
-                }
+        if (!isOutOfBounds(endPosition)
+                && blackPieceHere(board, endPosition)) {
+            if (endPosition.getRow() == 8) {
+                moves.addAll(promotionMoves(myPosition, endPosition));
+            } else {
+                moves.add(new ChessMove(myPosition, endPosition, null));
             }
         }
     }
@@ -281,10 +280,13 @@ public class ChessPiece {
         endPosition = new ChessPosition(row - 1, col + 1);
         if (!(isOutOfBounds(endPosition))) {
             if (whitePieceHere(board, endPosition)) {
-                if (endPosition.getRow() == 1) {
-                    moves.addAll(promotionMoves(myPosition, endPosition));
-                } else {
-                    moves.add(new ChessMove(myPosition, endPosition, null));
+                try {
+                    if (endPosition.getRow() == 1) {
+                        moves.addAll(promotionMoves(myPosition, endPosition));
+                    } else {
+                        moves.add(new ChessMove(myPosition, endPosition, null));
+                    }
+                } catch (SecurityException ignored) {
                 }
             }
         }
