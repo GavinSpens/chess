@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import model.*;
 
-public class DataAccessInMemory {
+public class DataAccessInMemory implements DataAccess {
     public ArrayList<UserData> users;
     public ArrayList<GameData> games;
     public ArrayList<AuthData> auths;
