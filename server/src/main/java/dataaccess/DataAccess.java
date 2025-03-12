@@ -6,23 +6,23 @@ import model.UserData;
 
 public interface DataAccess {
 
-    public UserData getUser(String username);
+    UserData getUser(String username);
 
-    public AuthData getAuth(String authToken);
+    AuthData getAuth(String authToken);
 
-    public GameData getGame(int gameId);
+    GameData getGame(int gameId);
 
-    public GameData[] getGames();
+    GameData[] getGames();
 
-    public void createUser(UserData user);
+    void createUser(UserData user);
 
-    public void createAuth(AuthData auth);
+    void createAuth(AuthData auth);
 
-    public void createGame(GameData game);
+    void createGame(GameData game);
 
-    public void updateGame(GameData game);
+    void updateGame(GameData game);
 
-    public void deleteAuth(String authToken);
+    void deleteAuth(String authToken);
 
-    public void deleteAll();
+    void deleteAll();
 }
