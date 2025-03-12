@@ -16,6 +16,10 @@ public class ChessPosition {
         this.row = row;
         this.col = col;
     }
+    public ChessPosition() {
+        row = 0;
+        col = 0;
+    }
 
     /**
      * @return which row this position is in
