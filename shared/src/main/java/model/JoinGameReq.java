@@ -1,6 +1,6 @@
 package model;
 
-import chess.ChessGame.TeamColor;
+// import chess.ChessGame.TeamColor;
 
 import java.util.Objects;
 

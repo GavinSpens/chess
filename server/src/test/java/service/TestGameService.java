@@ -5,7 +5,7 @@ import model.*;
 import org.junit.jupiter.api.*;
 import server.GameHandler;
 import server.UserHandler;
-import spark.Request;
+// import spark.Request;
 
 public class TestGameService {
     private final String username = "username";
@@ -84,7 +84,7 @@ public class TestGameService {
     @Test
     @DisplayName("createGame")
     public void testCreateGame() {
-        CreateGameResult actual;
+        // CreateGameResult actual;
         try {
             gameService.createGame(createGameRequest());
         } catch (DataAccessException e) {
