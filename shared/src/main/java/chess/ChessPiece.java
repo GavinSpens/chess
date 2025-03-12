@@ -173,7 +173,36 @@ public class ChessPiece {
         return moves;
     }
 
-    private void pawnForward(ChessBoard board, ChessPosition myPosition, ChessPosition endPosition) {
+    private void blackPawnForward(ChessBoard board, ChessPosition myPosition, ChessPosition endPosition) {
+        endPosition = new ChessPosition(row - 1, col);
+        if (!isOutOfBounds(endPosition)) {
+            if (board.getPiece(endPosition) == null) {
+
+                // check promotion
+                if (endPosition.getRow() == 1) {
+                    moves.addAll(promotionMoves(myPosition, endPosition));
+                } else {
+                    moves.add(new ChessMove(myPosition, endPosition, null));
+
+                    blackPawnDoubleForward(myPosition, endPosition, board);
+                }
+            }
+        }
+    }
+
+    private void blackPawnDoubleForward(ChessPosition myPosition, ChessPosition endPosition, ChessBoard board) {
+        // double forward
+        if (myPosition.getRow() == 7) {
+            endPosition = new ChessPosition(row - 2, col);
+            if (!isOutOfBounds(endPosition)) {
+                if (board.getPiece(endPosition) == null) {
+                    moves.add(new ChessMove(myPosition, endPosition, null));
+                }
+            }
+        }
+    }
+
+    private void whitePawnForward(ChessBoard board, ChessPosition myPosition, ChessPosition endPosition) {
         endPosition = new ChessPosition(row + 1, col);
         if (!isOutOfBounds(endPosition)) {
             if (board.getPiece(endPosition) == null) {
@@ -184,13 +213,13 @@ public class ChessPiece {
                 } else {
                     moves.add(new ChessMove(myPosition, endPosition, null));
 
-                    pawnDoubleForward(myPosition, endPosition, board);
+                    whitePawnDoubleForward(myPosition, endPosition, board);
                 }
             }
         }
     }
 
-    private void pawnDoubleForward(ChessPosition myPosition, ChessPosition endPosition, ChessBoard board) {
+    private void whitePawnDoubleForward(ChessPosition myPosition, ChessPosition endPosition, ChessBoard board) {
         // double forward
         if (myPosition.getRow() == 2) {
             endPosition = new ChessPosition(row + 2, col);
@@ -202,86 +231,73 @@ public class ChessPiece {
         }
     }
 
+    private boolean blackPieceHere(ChessBoard board, ChessPosition pos) {
+        return board.getPiece(pos) != null
+                && board.getPiece(pos).getTeamColor() == ChessGame.TeamColor.BLACK;
+    }
+
+    private boolean whitePieceHere(ChessBoard board, ChessPosition pos) {
+        return board.getPiece(pos) != null
+                && board.getPiece(pos).getTeamColor() == ChessGame.TeamColor.WHITE;
+    }
+
     private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
         if (pieceColor == ChessGame.TeamColor.WHITE) {
             ChessPosition endPosition = new ChessPosition();
-            pawnForward(board, myPosition, endPosition);
-
-            // attack
-            endPosition = new ChessPosition(row + 1, col + 1);
-            if (!isOutOfBounds(endPosition)) {
-                if (board.getPiece(endPosition) != null
-                        && board.getPiece(endPosition).getTeamColor() == ChessGame.TeamColor.BLACK) {
-                    if (endPosition.getRow() == 8) {
-                        moves.addAll(promotionMoves(myPosition, endPosition));
-                    } else {
-                        moves.add(new ChessMove(myPosition, endPosition, null));
-                    }
-                }
-            }
-            endPosition = new ChessPosition(row + 1, col - 1);
-            if (!isOutOfBounds(endPosition)) {
-                if (board.getPiece(endPosition) != null
-                        && board.getPiece(endPosition).getTeamColor() == ChessGame.TeamColor.BLACK) {
-                    // hopefully the autograder won't mind
-                    if (endPosition.getRow() == 8) {
-                        moves.addAll(promotionMoves(myPosition, endPosition));
-                    } else {
-                        moves.add(new ChessMove(myPosition, endPosition, null));
-                    }
-                }
-            }
+            whitePawnForward(board, myPosition, endPosition);
+            addWhiteAttackPawnMoves(board, endPosition, myPosition);
         } else {
-            // BLACK
-            // forward
             ChessPosition endPosition = new ChessPosition(row - 1, col);
-            if (!isOutOfBounds(endPosition)) {
-                if (board.getPiece(endPosition) == null) {
+            blackPawnForward(board, myPosition, endPosition);
+            addBlackAttackPawnMoves(board, endPosition, myPosition);
+        }
+        return moves;
+    }
 
-                    // check promotion
-                    if (endPosition.getRow() == 1) {
-                        moves.addAll(promotionMoves(myPosition, endPosition));
-                    } else {
-                        moves.add(new ChessMove(myPosition, endPosition, null));
-
-                        // double forward
-                        if (myPosition.getRow() == 7) {
-                            endPosition = new ChessPosition(row - 2, col);
-                            if (!isOutOfBounds(endPosition)) {
-                                if (board.getPiece(endPosition) == null) {
-                                    moves.add(new ChessMove(myPosition, endPosition, null));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // attack
-            endPosition = new ChessPosition(row - 1, col + 1);
-            if (!(isOutOfBounds(endPosition))) {
-                if (board.getPiece(endPosition) != null
-                        && board.getPiece(endPosition).getTeamColor() == ChessGame.TeamColor.WHITE) {
-                    if (endPosition.getRow() == 1) {
-                        moves.addAll(promotionMoves(myPosition, endPosition));
-                    } else {
-                        moves.add(new ChessMove(myPosition, endPosition, null));
-                    }
-                }
-            }
-            endPosition = new ChessPosition(row - 1, col - 1);
-            if (!isOutOfBounds(endPosition)) {
-                if (board.getPiece(endPosition) != null
-                        && board.getPiece(endPosition).getTeamColor() == ChessGame.TeamColor.WHITE) {
-                    if (endPosition.getRow() == 1) {
-                        moves.addAll(promotionMoves(myPosition, endPosition));
-                    } else {
-                        moves.add(new ChessMove(myPosition, endPosition, null));
-                    }
+    private void addWhiteAttackPawnMoves(ChessBoard board, ChessPosition endPosition, ChessPosition myPosition) {
+        endPosition = new ChessPosition(row + 1, col + 1);
+        if (!(isOutOfBounds(endPosition))) {
+            if (blackPieceHere(board, endPosition)) {
+                if (endPosition.getRow() == 8) {
+                    moves.addAll(promotionMoves(myPosition, endPosition));
+                } else {
+                    moves.add(new ChessMove(myPosition, endPosition, null));
                 }
             }
         }
-        return moves;
+        endPosition = new ChessPosition(row + 1, col - 1);
+        if (!isOutOfBounds(endPosition)) {
+            if (blackPieceHere(board, endPosition)) {
+                if (endPosition.getRow() == 8) {
+                    moves.addAll(promotionMoves(myPosition, endPosition));
+                } else {
+                    moves.add(new ChessMove(myPosition, endPosition, null));
+                }
+            }
+        }
+    }
+
+    private void addBlackAttackPawnMoves(ChessBoard board, ChessPosition endPosition, ChessPosition myPosition) {
+        endPosition = new ChessPosition(row - 1, col + 1);
+        if (!(isOutOfBounds(endPosition))) {
+            if (whitePieceHere(board, endPosition)) {
+                if (endPosition.getRow() == 1) {
+                    moves.addAll(promotionMoves(myPosition, endPosition));
+                } else {
+                    moves.add(new ChessMove(myPosition, endPosition, null));
+                }
+            }
+        }
+        endPosition = new ChessPosition(row - 1, col - 1);
+        if (!isOutOfBounds(endPosition)) {
+            if (whitePieceHere(board, endPosition)) {
+                if (endPosition.getRow() == 1) {
+                    moves.addAll(promotionMoves(myPosition, endPosition));
+                } else {
+                    moves.add(new ChessMove(myPosition, endPosition, null));
+                }
+            }
+        }
     }
 
     private Collection<ChessMove> promotionMoves(ChessPosition myPosition, ChessPosition endPosition) {
