@@ -7,15 +7,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
-    private final boolean useInMemoryDatabase = true;
     private final DataAccess dataAccess;
 
-    public UserService() {
-        if (useInMemoryDatabase) {
-            dataAccess = new DataAccessInMemory();
-        } else {
-
-        }
+    public UserService(DataAccess dataAccess) {
+        this.dataAccess = dataAccess;
     }
 
     public RegisterResult register(RegisterRequest request) throws Exception {

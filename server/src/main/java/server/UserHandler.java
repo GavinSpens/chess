@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccess;
 import model.*;
 import service.UserService;
 import spark.*;
@@ -10,8 +11,8 @@ import dataaccess.DataAccessException;
 public class UserHandler {
     private final UserService userService;
     
-    public UserHandler() {
-        userService = new UserService();
+    public UserHandler(DataAccess dataAccess) {
+        userService = new UserService(dataAccess);
     }
     
     public RegisterResult register(Request req, Response res) throws DataAccessException, Exception {

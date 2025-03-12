@@ -5,15 +5,10 @@ import dataaccess.*;
 import model.*;
 
 public class GameService {
-    private final boolean useInMemoryDatabase = true;
     private final DataAccess dataAccess;
 
-    public GameService() {
-        if (useInMemoryDatabase) {
-            dataAccess = new DataAccessInMemory();
-        } else {
-            
-        }
+    public GameService(DataAccess dataAccess) {
+        this.dataAccess = dataAccess;
     }
 
     public ListGamesResult listGames(String authToken) throws DataAccessException {
