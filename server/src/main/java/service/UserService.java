@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class UserService {
-    private static final boolean useInMemoryDatabase = true;
+    private static final boolean useInMemoryDatabase = false;
 
     public static RegisterResult register(RegisterRequest request) throws Exception {
         String username = request.getUsername();
@@ -22,7 +22,7 @@ public abstract class UserService {
         if (useInMemoryDatabase) {
             userData = DataAccess_InMemory.getUser(username);
         } else {
-
+            userData = DataAccess.getUser(username);
         }
         if (userData != null) {
             throw new DataAccessException("Error: already taken");
@@ -32,7 +32,7 @@ public abstract class UserService {
         if (useInMemoryDatabase) {
             DataAccess_InMemory.createUser(userData);
         } else {
-
+            DataAccess.createUser(userData);
         }
 
         String authToken = createAuthToken();
@@ -40,7 +40,7 @@ public abstract class UserService {
         if (useInMemoryDatabase) {
             DataAccess_InMemory.createAuth(auth);
         } else {
-
+            DataAccess.createAuth(auth);
         }
 
         return new RegisterResult(authToken, username);
@@ -53,7 +53,7 @@ public abstract class UserService {
         if (useInMemoryDatabase) {
             user = DataAccess_InMemory.getUser(username);
         } else {
-
+            user = DataAccess.getUser(username);
         }
         if (user == null || !Objects.equals(user.getPassword(), loginRequest.getPassword())) {
             throw new DataAccessException("Error: Unauthorized");
@@ -63,7 +63,7 @@ public abstract class UserService {
         if (useInMemoryDatabase) {
             DataAccess_InMemory.createAuth(new AuthData(authToken, username));
         } else {
-
+            DataAccess.createAuth(new AuthData(authToken, username));
         }
 
         return new LoginResult(username, authToken);
@@ -74,7 +74,7 @@ public abstract class UserService {
         if (useInMemoryDatabase) {
             authData = DataAccess_InMemory.getAuth(logoutRequest.getAuthToken());
         } else {
-
+            authData = DataAccess.getAuth(logoutRequest.getAuthToken());
         }
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
@@ -82,7 +82,7 @@ public abstract class UserService {
         if (useInMemoryDatabase) {
             DataAccess_InMemory.deleteAuth(logoutRequest.getAuthToken());
         } else {
-
+            DataAccess.deleteAuth(logoutRequest.getAuthToken());
         }
     }
 

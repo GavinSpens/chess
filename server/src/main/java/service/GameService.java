@@ -5,14 +5,14 @@ import dataaccess.*;
 import model.*;
 
 public abstract class GameService {
-    private static final boolean useInMemoryDatabase = true;
+    private static final boolean useInMemoryDatabase = false;
 
     public static ListGamesResult listGames(String authToken) throws DataAccessException {
         AuthData authData;
         if (useInMemoryDatabase) {
             authData = DataAccess_InMemory.getAuth(authToken);
         } else {
-
+            authData = DataAccess.getAuth(authToken);
         }
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
@@ -21,7 +21,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             gameData = DataAccess_InMemory.getGames();
         } else {
-
+            gameData = DataAccess.getGames();
         }
         return new ListGamesResult(gameData);
     }
@@ -32,7 +32,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             authData = DataAccess_InMemory.getAuth(createGameRequest.getAuthToken());
         } else {
-
+            authData = DataAccess.getAuth(createGameRequest.getAuthToken());
         }
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
@@ -42,7 +42,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             gameID = DataAccess_InMemory.getGames().length + 1;
         } else {
-
+            gameID = DataAccess.getGames().length + 1;
         }
         String gameName = createGameRequest.getGameName();
 
@@ -52,7 +52,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             DataAccess_InMemory.createGame(gameData);
         } else {
-
+            DataAccess.createGame(gameData);
         }
         return new CreateGameResult(gameID);
     }
@@ -62,7 +62,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             authData = DataAccess_InMemory.getAuth(joinGameRequest.getAuthToken());
         } else {
-
+            authData = DataAccess.getAuth(joinGameRequest.getAuthToken());
         }
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
@@ -72,7 +72,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             game = DataAccess_InMemory.getGame(joinGameRequest.getGameID());
         } else {
-
+            game = DataAccess.getGame(joinGameRequest.getGameID());
         }
         if (game == null) {
             throw new Exception("Error: No game with given ID");
@@ -104,7 +104,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             DataAccess_InMemory.updateGame(gameData);
         } else {
-
+            DataAccess.updateGame(gameData);
         }
         return new CreateGameResult(game.gameID());
     }
@@ -113,7 +113,7 @@ public abstract class GameService {
         if (useInMemoryDatabase) {
             DataAccess_InMemory.deleteAll();
         } else {
-
+            DataAccess.deleteAll();
         }
     }
 }
