@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.DataAccessInMemory;
+import dataaccess.MemoryDataAccess;
 import model.*;
 import org.junit.jupiter.api.*;
 
@@ -24,7 +24,7 @@ public class TestUserService {
 
     @BeforeAll
     public static void init() {
-        DataAccess dataAccess = new DataAccessInMemory();
+        DataAccess dataAccess = new MemoryDataAccess();
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
     }

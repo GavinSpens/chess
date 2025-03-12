@@ -2,7 +2,7 @@ package server;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.DataAccessInMemory;
+import dataaccess.MemoryDataAccess;
 import model.*;
 import spark.*;
 import com.google.gson.Gson;
@@ -15,7 +15,7 @@ public class Server {
 
     public Server() {
         if (useInMemoryDatabase) {
-            dataAccess = new DataAccessInMemory();
+            dataAccess = new MemoryDataAccess();
         } else {
 
         }
