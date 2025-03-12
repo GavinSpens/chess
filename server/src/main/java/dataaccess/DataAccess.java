@@ -6,41 +6,37 @@ import model.UserData;
 
 public class DataAccess {
 
-    public DataAccess() {
-
-    }
-
-    public UserData getUser(String username) {
+    public static UserData getUser(String username) {
         return null;
     }
 
-    public AuthData getAuth(String authToken) {
+    public static AuthData getAuth(String authToken) {
         return null;
     }
 
-    public GameData getGame(int gameId) {
+    public static GameData getGame(int gameId) {
         return null;
     }
 
-    public GameData[] getGames() {
+    public static GameData[] getGames() {
         return null;
     }
 
-    public void createUser(UserData user) {
+    public static void createUser(UserData user) {
     }
 
-    public void createAuth(AuthData auth) {
+    public static void createAuth(AuthData auth) {
     }
 
-    public void createGame(GameData game) {
+    public static void createGame(GameData game) {
     }
 
-    public void updateGame(GameData game) {
+    public static void updateGame(GameData game) {
     }
 
-    public void deleteAuth(String authToken) {
+    public static void deleteAuth(String authToken) {
     }
 
-    public void deleteAll() {
+    public static void deleteAll() {
     }
 }

@@ -16,9 +16,6 @@ public class TestGameService {
     private String authToken;
     private Integer gameID;
     
-    private static UserService userService;
-    private static GameService gameService;
-    
     private final RegisterRequest registerRequest = new RegisterRequest(username, password, email);
 
     private CreateGameRequest createGameRequest() {
@@ -29,17 +26,11 @@ public class TestGameService {
         return new JoinGameRequest(playerColor, gameID, authToken);
     }
     
-    @BeforeAll
-    public static void init() {
-        userService = new UserService();
-        gameService = new GameService();
-    }
-    
     @BeforeEach
     public void registerGetAuth() {
         RegisterResult result;
         try {
-            result = userService.register(registerRequest);
+            result = UserService.register(registerRequest);
         } catch (Exception e) {
             Assertions.fail();
             return;
@@ -50,7 +41,7 @@ public class TestGameService {
     @AfterEach
     public void tearDown() {
         try {
-            gameService.clear();
+            GameService.clear();
         } catch (Exception ignored) {}
     }
 
@@ -59,7 +50,7 @@ public class TestGameService {
     public void testListGamesEmpty() {
         ListGamesResult actual;
         try {
-            actual = gameService.listGames(authToken);
+            actual = GameService.listGames(authToken);
         } catch (DataAccessException e) {
             Assertions.fail();
             return;
@@ -72,8 +63,8 @@ public class TestGameService {
     public void testListGames() {
         ListGamesResult actual;
         try {
-            gameService.createGame(createGameRequest());
-            actual = gameService.listGames(authToken);
+            GameService.createGame(createGameRequest());
+            actual = GameService.listGames(authToken);
         } catch (DataAccessException e) {
             Assertions.fail();
             return;
@@ -86,7 +77,7 @@ public class TestGameService {
     public void testCreateGame() {
         CreateGameResult actual;
         try {
-            gameService.createGame(createGameRequest());
+            GameService.createGame(createGameRequest());
         } catch (DataAccessException e) {
             Assertions.fail();
         }
@@ -97,8 +88,8 @@ public class TestGameService {
     public void testJoinGame() {
         CreateGameResult actual;
         try {
-            gameID = gameService.createGame(createGameRequest()).getGameID();
-            actual = gameService.joinGame(joinGameRequest());
+            gameID = GameService.createGame(createGameRequest()).getGameID();
+            actual = GameService.joinGame(joinGameRequest());
         } catch (Exception e) {
             Assertions.fail();
             return;
@@ -109,9 +100,9 @@ public class TestGameService {
     @Test
     @DisplayName("clear")
     public void testClear() {
-        gameService.clear();
+        GameService.clear();
         try {
-            gameService.listGames("noAuth");
+            GameService.listGames("noAuth");
         } catch (DataAccessException e) {
             return;
         }
