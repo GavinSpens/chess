@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccess;
 import model.*;
 import service.GameService;
 import spark.*;
@@ -10,8 +11,8 @@ import dataaccess.DataAccessException;
 public class GameHandler {
     private final GameService gameService;
     
-    public GameHandler() {
-        gameService = new GameService();
+    public GameHandler(DataAccess dataAccess) {
+        gameService = new GameService(dataAccess);
     }
     
     public ListGamesResult listGames(Request req, Response res) throws DataAccessException {

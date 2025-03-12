@@ -5,82 +5,44 @@ import dataaccess.*;
 import model.*;
 
 public class GameService {
-    private final boolean useInMemoryDatabase = true;
     private final DataAccess dataAccess;
-    private final DataAccessInMemory dataAccessInMemory;
-    
-    public GameService() {
-        dataAccess = new DataAccess();
-        dataAccessInMemory = new DataAccessInMemory();
+
+    public GameService(DataAccess dataAccess) {
+        this.dataAccess = dataAccess;
     }
 
     public ListGamesResult listGames(String authToken) throws DataAccessException {
-        AuthData authData;
-        if (useInMemoryDatabase) {
-            authData = dataAccessInMemory.getAuth(authToken);
-        } else {
-            authData = dataAccess.getAuth(authToken);
-        }
+        AuthData authData = dataAccess.getAuth(authToken);
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
-        GameData[] gameData;
-        if (useInMemoryDatabase) {
-            gameData = dataAccessInMemory.getGames();
-        } else {
-            gameData = dataAccess.getGames();
-        }
+        GameData[] gameData = dataAccess.getGames();
         return new ListGamesResult(gameData);
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
 
-        AuthData authData;
-        if (useInMemoryDatabase) {
-            authData = dataAccessInMemory.getAuth(createGameRequest.getAuthToken());
-        } else {
-            authData = dataAccess.getAuth(createGameRequest.getAuthToken());
-        }
+        AuthData authData = dataAccess.getAuth(createGameRequest.getAuthToken());
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
 
-        int gameID = 0;
-        if (useInMemoryDatabase) {
-            gameID = dataAccessInMemory.getGames().length + 1;
-        } else {
-            gameID = dataAccess.getGames().length + 1;
-        }
+        int gameID = dataAccess.getGames().length + 1;
         String gameName = createGameRequest.getGameName();
 
         GameData gameData = new GameData(
-                gameID, null, null, gameName, new ChessGame()
-        );
-        if (useInMemoryDatabase) {
-            dataAccessInMemory.createGame(gameData);
-        } else {
-            dataAccess.createGame(gameData);
-        }
+                gameID, null, null, gameName, new ChessGame());
+        dataAccess.createGame(gameData);
         return new CreateGameResult(gameID);
     }
 
     public CreateGameResult joinGame(JoinGameRequest joinGameRequest) throws Exception {
-        AuthData authData;
-        if (useInMemoryDatabase) {
-            authData = dataAccessInMemory.getAuth(joinGameRequest.getAuthToken());
-        } else {
-            authData = dataAccess.getAuth(joinGameRequest.getAuthToken());
-        }
+        AuthData authData = dataAccess.getAuth(joinGameRequest.getAuthToken());
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
 
-        GameData game = null;
-        if (useInMemoryDatabase) {
-            game = dataAccessInMemory.getGame(joinGameRequest.getGameID());
-        } else {
-            game = dataAccess.getGame(joinGameRequest.getGameID());
-        }
+        GameData game = dataAccess.getGame(joinGameRequest.getGameID());
         if (game == null) {
             throw new Exception("Error: No game with given ID");
         }
@@ -108,19 +70,11 @@ public class GameService {
         }
 
         GameData gameData = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
-        if (useInMemoryDatabase) {
-            dataAccessInMemory.updateGame(gameData);
-        } else {
-            dataAccess.updateGame(gameData);
-        }
+        dataAccess.updateGame(gameData);
         return new CreateGameResult(game.gameID());
     }
 
     public void clear() {
-        if (useInMemoryDatabase) {
-            dataAccessInMemory.deleteAll();
-        } else {
-            dataAccess.deleteAll();
-        }
+        dataAccess.deleteAll();
     }
 }

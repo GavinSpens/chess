@@ -1,21 +1,24 @@
 package dataaccess;
 
+import model.AuthData;
+import model.GameData;
+import model.UserData;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
-import model.*;
+public class MemoryDataAccess implements DataAccess {
+    private final ArrayList<UserData> users;
+    private final ArrayList<GameData> games;
+    private final ArrayList<AuthData> auths;
 
-public class DataAccessInMemory {
-    public ArrayList<UserData> users;
-    public ArrayList<GameData> games;
-    public ArrayList<AuthData> auths;
-
-    public DataAccessInMemory() {
+    public MemoryDataAccess() {
         users = new ArrayList<>();
         games = new ArrayList<>();
         auths = new ArrayList<>();
     }
-    
+
+    @Override
     public UserData getUser(String username) {
         for (UserData user : users) {
             if (user.getUsername().equals(username)) {
@@ -25,6 +28,7 @@ public class DataAccessInMemory {
         return null;
     }
 
+    @Override
     public AuthData getAuth(String authToken) {
         for (AuthData auth : auths) {
             if (Objects.equals(auth.getAuthToken(), authToken)) {
@@ -34,6 +38,7 @@ public class DataAccessInMemory {
         return null;
     }
 
+    @Override
     public GameData getGame(int gameId) {
         for (GameData game : games) {
             if (game.gameID() == gameId) {
@@ -43,6 +48,7 @@ public class DataAccessInMemory {
         return null;
     }
 
+    @Override
     public GameData[] getGames() {
         GameData[] gameData = new GameData[games.size()];
         for (int i = 0; i < games.size(); i++) {
@@ -51,23 +57,28 @@ public class DataAccessInMemory {
         return gameData;
     }
 
+    @Override
     public void createUser(UserData user) {
         users.add(user);
     }
 
+    @Override
     public void createAuth(AuthData auth) {
         auths.add(auth);
     }
 
+    @Override
     public void createGame(GameData game) {
         games.add(game);
     }
 
+    @Override
     public void updateGame(GameData game) {
         games.remove(game.gameID() - 1);
         games.add(game);
     }
 
+    @Override
     public void deleteAuth(String authToken) {
         AuthData delete = null;
         for (AuthData auth : auths) {
@@ -78,6 +89,7 @@ public class DataAccessInMemory {
         auths.remove(delete);
     }
 
+    @Override
     public void deleteAll() {
         users.clear();
         auths.clear();

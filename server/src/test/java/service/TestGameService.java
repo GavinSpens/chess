@@ -1,11 +1,13 @@
 package service;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.MemoryDataAccess;
 import model.*;
 
 import org.junit.jupiter.api.*;
 import server.GameHandler;
 import server.UserHandler;
-import spark.Request;
+// import spark.Request;
 
 public class TestGameService {
     private final String username = "username";
@@ -18,7 +20,7 @@ public class TestGameService {
     
     private static UserService userService;
     private static GameService gameService;
-    
+
     private final RegisterRequest registerRequest = new RegisterRequest(username, password, email);
 
     private CreateGameRequest createGameRequest() {
@@ -31,8 +33,9 @@ public class TestGameService {
     
     @BeforeAll
     public static void init() {
-        userService = new UserService();
-        gameService = new GameService();
+        DataAccess dataAccess = new MemoryDataAccess();
+        userService = new UserService(dataAccess);
+        gameService = new GameService(dataAccess);
     }
     
     @BeforeEach
@@ -84,7 +87,7 @@ public class TestGameService {
     @Test
     @DisplayName("createGame")
     public void testCreateGame() {
-        CreateGameResult actual;
+        // CreateGameResult actual;
         try {
             gameService.createGame(createGameRequest());
         } catch (DataAccessException e) {

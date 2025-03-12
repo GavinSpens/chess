@@ -1,18 +1,26 @@
 package server;
 
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.MemoryDataAccess;
 import model.*;
-import service.GameService;
 import spark.*;
 import com.google.gson.Gson;
 
 public class Server {
+    private final boolean useInMemoryDatabase = true;
+    private final DataAccess dataAccess;
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
 
     public Server() {
-        userHandler = new UserHandler();
-        gameHandler = new GameHandler();
+        if (useInMemoryDatabase) {
+            dataAccess = new MemoryDataAccess();
+        } else {
+
+        }
+        userHandler = new UserHandler(dataAccess);
+        gameHandler = new GameHandler(dataAccess);
     }
 
     public int run(int desiredPort) {
