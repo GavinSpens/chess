@@ -2,16 +2,16 @@ package service;
 
 import dataaccess.DataAccessException;
 import model.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 public class TestUserService {
     private final String username = "username";
     private final String password = "password";
     private final String email = "email";
     private String authToken;
+
+    private static UserService userService;
+    private static GameService gameService;
 
     private final RegisterRequest registerRequest = new RegisterRequest(username, password, email);
     private final LoginRequest loginRequest = new LoginRequest(username, password);
@@ -20,9 +20,15 @@ public class TestUserService {
         return new LogoutRequest(authToken);
     }
 
+    @BeforeAll
+    public static void init() {
+        userService = new UserService();
+        gameService = new GameService();
+    }
+    
     @AfterEach
     public void tearDown() {
-        GameService.clear();
+        gameService.clear();
     }
 
     @Test
@@ -30,7 +36,7 @@ public class TestUserService {
     public void testRegister() {
         RegisterResult actual;
         try {
-            actual = UserService.register(registerRequest);
+            actual = userService.register(registerRequest);
         } catch (Exception e) {
             Assertions.fail("Threw DataAccessException " + e);
             return;
@@ -43,13 +49,13 @@ public class TestUserService {
     @DisplayName("Register fail")
     public void testRegisterFail() {
         try {
-            UserService.register(registerRequest);
+            userService.register(registerRequest);
         } catch (Exception e) {
             Assertions.fail("Threw DataAccessException on first register call" + e);
             return;
         }
         try {
-            UserService.register(registerRequest);
+            userService.register(registerRequest);
         } catch (Exception e) {
             return;
         }
@@ -61,8 +67,8 @@ public class TestUserService {
     public void testLogin() {
         LoginResult actual;
         try {
-            UserService.register(registerRequest);
-            actual = UserService.login(loginRequest);
+            userService.register(registerRequest);
+            actual = userService.login(loginRequest);
         } catch (Exception e) {
             Assertions.fail();
             return;
@@ -75,7 +81,7 @@ public class TestUserService {
     @DisplayName("login fail")
     public void testLoginFail() {
         try {
-            UserService.login(loginRequest);
+            userService.login(loginRequest);
         } catch (DataAccessException e) {
             return;
         }
@@ -87,7 +93,7 @@ public class TestUserService {
     public void testLogout() {
         RegisterResult result;
         try {
-            result = UserService.register(registerRequest);
+            result = userService.register(registerRequest);
         } catch (Exception e) {
             Assertions.fail();
             return;
@@ -95,7 +101,7 @@ public class TestUserService {
         authToken = result.getAuthToken();
         LogoutRequest logoutRequest = createLogoutRequest();
         try {
-            UserService.logout(logoutRequest);
+            userService.logout(logoutRequest);
         } catch (DataAccessException e) {
             Assertions.fail();
         }
@@ -106,7 +112,7 @@ public class TestUserService {
     public void testLogoutFail() {
         LogoutRequest logoutRequest = createLogoutRequest();
         try {
-            UserService.logout(logoutRequest);
+            userService.logout(logoutRequest);
         } catch (DataAccessException e) {
             return;
         }

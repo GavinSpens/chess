@@ -6,10 +6,17 @@ import model.*;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class UserService {
-    private static final boolean useInMemoryDatabase = false;
+public class UserService {
+    private final boolean useInMemoryDatabase = true;
+    private final DataAccess dataAccess;
+    private final DataAccessInMemory dataAccessInMemory;
 
-    public static RegisterResult register(RegisterRequest request) throws Exception {
+    public UserService() {
+        dataAccess = new DataAccess();
+        dataAccessInMemory = new DataAccessInMemory();
+    }
+
+    public RegisterResult register(RegisterRequest request) throws Exception {
         String username = request.getUsername();
         String password = request.getPassword();
         String email = request.getEmail();
@@ -20,9 +27,9 @@ public abstract class UserService {
 
         UserData userData = null;
         if (useInMemoryDatabase) {
-            userData = DataAccess_InMemory.getUser(username);
+            userData = dataAccessInMemory.getUser(username);
         } else {
-            userData = DataAccess.getUser(username);
+            userData = dataAccess.getUser(username);
         }
         if (userData != null) {
             throw new DataAccessException("Error: already taken");
@@ -30,30 +37,30 @@ public abstract class UserService {
 
         userData = new UserData(username, password, email);
         if (useInMemoryDatabase) {
-            DataAccess_InMemory.createUser(userData);
+            dataAccessInMemory.createUser(userData);
         } else {
-            DataAccess.createUser(userData);
+            dataAccess.createUser(userData);
         }
 
         String authToken = createAuthToken();
         AuthData auth = new AuthData(authToken, username);
         if (useInMemoryDatabase) {
-            DataAccess_InMemory.createAuth(auth);
+            dataAccessInMemory.createAuth(auth);
         } else {
-            DataAccess.createAuth(auth);
+            dataAccess.createAuth(auth);
         }
 
         return new RegisterResult(authToken, username);
     }
 
-    public static LoginResult login(LoginRequest loginRequest) throws DataAccessException {
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
         String username = loginRequest.getUsername();
 
         UserData user = null;
         if (useInMemoryDatabase) {
-            user = DataAccess_InMemory.getUser(username);
+            user = dataAccessInMemory.getUser(username);
         } else {
-            user = DataAccess.getUser(username);
+            user = dataAccess.getUser(username);
         }
         if (user == null || !Objects.equals(user.getPassword(), loginRequest.getPassword())) {
             throw new DataAccessException("Error: Unauthorized");
@@ -61,32 +68,32 @@ public abstract class UserService {
 
         String authToken = createAuthToken();
         if (useInMemoryDatabase) {
-            DataAccess_InMemory.createAuth(new AuthData(authToken, username));
+            dataAccessInMemory.createAuth(new AuthData(authToken, username));
         } else {
-            DataAccess.createAuth(new AuthData(authToken, username));
+            dataAccess.createAuth(new AuthData(authToken, username));
         }
 
         return new LoginResult(username, authToken);
     }
 
-    public static void logout(LogoutRequest logoutRequest) throws DataAccessException {
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
         AuthData authData = null;
         if (useInMemoryDatabase) {
-            authData = DataAccess_InMemory.getAuth(logoutRequest.getAuthToken());
+            authData = dataAccessInMemory.getAuth(logoutRequest.getAuthToken());
         } else {
-            authData = DataAccess.getAuth(logoutRequest.getAuthToken());
+            authData = dataAccess.getAuth(logoutRequest.getAuthToken());
         }
         if (authData == null) {
             throw new DataAccessException("Error: Unauthorized");
         }
         if (useInMemoryDatabase) {
-            DataAccess_InMemory.deleteAuth(logoutRequest.getAuthToken());
+            dataAccessInMemory.deleteAuth(logoutRequest.getAuthToken());
         } else {
-            DataAccess.deleteAuth(logoutRequest.getAuthToken());
+            dataAccess.deleteAuth(logoutRequest.getAuthToken());
         }
     }
 
-    private static String createAuthToken() {
+    private String createAuthToken() {
         return UUID.randomUUID().toString();
     }
 }

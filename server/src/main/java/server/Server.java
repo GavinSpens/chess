@@ -7,8 +7,12 @@ import spark.*;
 import com.google.gson.Gson;
 
 public class Server {
+    private final UserHandler userHandler;
+    private final GameHandler gameHandler;
 
     public Server() {
+        userHandler = new UserHandler();
+        gameHandler = new GameHandler();
     }
 
     public int run(int desiredPort) {
@@ -20,7 +24,7 @@ public class Server {
         Spark.post("/user", (req, res) -> {
             RegisterResult result = new RegisterResult();
             try {
-                result = UserHandler.register(req, res);
+                result = userHandler.register(req, res);
             } catch (DataAccessException e) {
                 res.status(403);
                 result.setMessage(e.getMessage());
@@ -34,7 +38,7 @@ public class Server {
         Spark.post("/session", (req, res) -> {
             LoginResult result = new LoginResult();
             try {
-                result = UserHandler.login(req, res);
+                result = userHandler.login(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
                 result.setMessage(e.getMessage());
@@ -45,7 +49,7 @@ public class Server {
         Spark.delete("/session", (req, res) -> {
             BaseResult result = new BaseResult();
             try {
-                result = UserHandler.logout(req, res);
+                result = userHandler.logout(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
                 result = new BaseResult(e.getMessage());
@@ -56,7 +60,7 @@ public class Server {
         Spark.get("/game", (req, res) -> {
             ListGamesResult result = new ListGamesResult();
             try {
-                result = GameHandler.listGames(req, res);
+                result = gameHandler.listGames(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
                 result.setMessage(e.getMessage());
@@ -67,7 +71,7 @@ public class Server {
         Spark.post("/game", (req, res) -> {
             CreateGameResult result = new CreateGameResult();
             try {
-                result = GameHandler.createGame(req, res);
+                result = gameHandler.createGame(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
                 result.setMessage(e.getMessage());
@@ -78,7 +82,7 @@ public class Server {
         Spark.put("/game", (req, res) -> {
             CreateGameResult result = new CreateGameResult();
             try {
-                result = GameHandler.joinGame(req, res);
+                result = gameHandler.joinGame(req, res);
             } catch (RuntimeException e) {
                 res.status(403);
                 result.setMessage(e.getMessage());
@@ -94,7 +98,7 @@ public class Server {
 
         Spark.delete("/db", (req, res) -> {
             BaseResult result = new BaseResult();
-            GameService.clear();
+            gameHandler.clear();
             return new Gson().toJson(result);
         });
 

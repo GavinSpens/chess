@@ -7,27 +7,37 @@ import com.google.gson.Gson;
 
 import dataaccess.DataAccessException;
 
-public abstract class GameHandler {
-    public static ListGamesResult listGames(Request req, Response res) throws DataAccessException {
+public class GameHandler {
+    private final GameService gameService;
+    
+    public GameHandler() {
+        gameService = new GameService();
+    }
+    
+    public ListGamesResult listGames(Request req, Response res) throws DataAccessException {
         String authToken = req.headers("Authorization");
-        return GameService.listGames(authToken);
+        return gameService.listGames(authToken);
     }
 
-    public static CreateGameResult createGame(Request req, Response res) throws DataAccessException {
+    public CreateGameResult createGame(Request req, Response res) throws DataAccessException {
         String authToken = req.headers("Authorization");
         GameNameClass gameName = getBody(req, GameNameClass.class);
         CreateGameRequest createGameRequest = new CreateGameRequest(gameName.getGameName(), authToken);
-        return GameService.createGame(createGameRequest);
+        return gameService.createGame(createGameRequest);
     }
 
-    public static CreateGameResult joinGame(Request req, Response res) throws Exception {
+    public CreateGameResult joinGame(Request req, Response res) throws Exception {
         String authToken = req.headers("Authorization");
         JoinGameReq joinReq = getBody(req, JoinGameReq.class);
         JoinGameRequest joinGameRequest = new JoinGameRequest(joinReq, authToken);
-        return GameService.joinGame(joinGameRequest);
+        return gameService.joinGame(joinGameRequest);
     }
 
-    private static <T> T getBody(Request request, Class<T> clazz) {
+    public void clear() {
+        gameService.clear();
+    }
+
+    private <T> T getBody(Request request, Class<T> clazz) {
         var body = new Gson().fromJson(request.body(), clazz);
         if (body == null) {
             throw new RuntimeException("missing required body");
