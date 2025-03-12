@@ -286,8 +286,8 @@ public class ChessPiece {
                     } else {
                         moves.add(new ChessMove(myPosition, endPosition, null));
                     }
-                } catch (SecurityException ignored) {
                 }
+                catch (SecurityException ignored) {}
             }
         }
         endPosition = new ChessPosition(row - 1, col - 1);
