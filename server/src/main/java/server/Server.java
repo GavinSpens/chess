@@ -3,21 +3,28 @@ package server;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.SQLDataAccess;
 import model.*;
 import spark.*;
 import com.google.gson.Gson;
 
 public class Server {
     private final boolean useInMemoryDatabase = true;
-    private final DataAccess dataAccess;
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
 
     public Server() {
+        DataAccess dataAccess;
         if (useInMemoryDatabase) {
             dataAccess = new MemoryDataAccess();
         } else {
-
+            try {
+                dataAccess = new SQLDataAccess();
+            } catch (DataAccessException e) {
+                throw new RuntimeException(
+                        "Unable to access db with credentials in db.properties"
+                );
+            }
         }
         userHandler = new UserHandler(dataAccess);
         gameHandler = new GameHandler(dataAccess);

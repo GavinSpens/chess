@@ -50,17 +50,18 @@ public class GameService {
         String myUsername = authData.getUsername();
         String whiteUsername = game.whiteUsername();
         String blackUsername = game.blackUsername();
+        String playerColor = joinGameRequest.getPlayerColor();
 
-        if (joinGameRequest.getPlayerColor() == null) {
+        if (playerColor == null) {
             throw new Exception("Error: Bad Request");
         }
 
-        if (joinGameRequest.getPlayerColor().equals("WHITE")) {
+        if (playerColor == "WHITE") {
             if (whiteUsername != null) {
                 throw new RuntimeException("Error: Already Taken");
             }
             whiteUsername = myUsername;
-        } else if (joinGameRequest.getPlayerColor().equals("BLACK")) {
+        } else if (playerColor == "BLACK") {
             if (blackUsername != null) {
                 throw new RuntimeException("Error: Already Taken");
             }
