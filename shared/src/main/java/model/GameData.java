@@ -4,8 +4,18 @@ import chess.ChessGame;
 
 import java.util.Objects;
 
-public record GameData(Integer gameID, String whiteUsername,
-                       String blackUsername, String gameName, ChessGame game) {
+public record GameData(
+        Integer gameID, String whiteUsername,
+        String blackUsername, String gameName, ChessGame game
+        ) {
+
+    public GameData setId(Integer gameID) {
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    }
+
+    public Integer getId() {
+        return gameID;
+    }
 
     @Override
     public boolean equals(Object o) {

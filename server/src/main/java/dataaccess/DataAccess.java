@@ -14,6 +14,8 @@ public interface DataAccess {
 
     GameData[] getGames();
 
+    int countGames();
+
     void createUser(UserData user);
 
     void createAuth(AuthData auth);

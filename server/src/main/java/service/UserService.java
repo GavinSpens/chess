@@ -3,14 +3,34 @@ package service;
 import dataaccess.*;
 import model.*;
 
-import java.util.Objects;
 import java.util.UUID;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
     private final DataAccess dataAccess;
 
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
+    }
+
+    private UserData hashPassword(UserData userData) {
+        String clearTextPassword = userData.getPassword();
+        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+        return new UserData(userData.getUsername(), hashedPassword, userData.getEmail());
+    }
+
+    private boolean verifyPassword(LoginRequest loginRequest) {
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
+        UserData userData = dataAccess.getUser(username);
+    
+        if (userData == null) {
+            return false;
+        }
+        String hashedPassword = userData.getPassword();
+
+        return BCrypt.checkpw(password, hashedPassword);
     }
 
     public RegisterResult register(RegisterRequest request) throws Exception {
@@ -28,6 +48,8 @@ public class UserService {
         }
 
         userData = new UserData(username, password, email);
+        userData = hashPassword(userData);
+        
         dataAccess.createUser(userData);
 
         String authToken = createAuthToken();
@@ -39,9 +61,8 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
         String username = loginRequest.getUsername();
-        UserData user = dataAccess.getUser(username);
 
-        if (user == null || !Objects.equals(user.getPassword(), loginRequest.getPassword())) {
+        if (!verifyPassword(loginRequest)) {
             throw new DataAccessException("Error: Unauthorized");
         }
 
