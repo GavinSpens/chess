@@ -4,11 +4,9 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.*;
 
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
 import server.GameHandler;
 import server.UserHandler;
-// import spark.Request;
 
 public class TestGameService {
     private final String username = "username";
