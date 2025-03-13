@@ -15,7 +15,7 @@ public class TestUserService {
     private static UserService userService;
     private static GameService gameService;
 
-    private final RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+    private final UserData registerRequest = new UserData(username, password, email);
     private final LoginRequest loginRequest = new LoginRequest(username, password);
 
     private LogoutRequest createLogoutRequest() {

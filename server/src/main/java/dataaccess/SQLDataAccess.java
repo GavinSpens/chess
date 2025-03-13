@@ -239,28 +239,27 @@ public class SQLDataAccess implements DataAccess {
     }
 
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p)
-                        ps.setString(i + 1, p);
-                    else if (param instanceof Integer p)
-                        ps.setInt(i + 1, p);
-                    else if (param instanceof GameData p)
-                    {
-                        String json = new Gson().toJson(p);
-                        ps.setString(i + 1, json);
-                    }
-                    else if (param == null)
-                        ps.setNull(i + 1, NULL);
+        try {
+            var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS);
+            for (var i = 0; i < params.length; i++) {
+                var param = params[i];
+                if (param instanceof String p) {
+                    ps.setString(i + 1, p);
+                } else if (param instanceof Integer p) {
+                    ps.setInt(i + 1, p);
+                } else if (param instanceof GameData p) {
+                    String json = new Gson().toJson(p);
+                    ps.setString(i + 1, json);
+                } else if (param == null) {
+                    ps.setNull(i + 1, NULL);
                 }
-                ps.executeUpdate();
+            }
+            ps.executeUpdate();
 
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    rs.getInt(1);
-                }
+            var rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                rs.getInt(1);
             }
         } catch (SQLException e) {
             throw new DataAccessException(

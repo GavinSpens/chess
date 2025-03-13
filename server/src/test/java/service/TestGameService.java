@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.*;
 
+import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
 import server.GameHandler;
 import server.UserHandler;
@@ -21,7 +22,7 @@ public class TestGameService {
     private static UserService userService;
     private static GameService gameService;
 
-    private final RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+    private final UserData registerRequest = new UserData(username, password, email);
 
     private CreateGameRequest createGameRequest() {
         return new CreateGameRequest(gameName, authToken);

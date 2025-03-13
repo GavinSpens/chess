@@ -33,7 +33,7 @@ public class UserService {
         return BCrypt.checkpw(password, hashedPassword);
     }
 
-    public RegisterResult register(RegisterRequest request) throws Exception {
+    public RegisterResult register(UserData request) throws Exception {
         String username = request.getUsername();
         String password = request.getPassword();
         String email = request.getEmail();

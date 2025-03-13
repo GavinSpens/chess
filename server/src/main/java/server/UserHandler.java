@@ -16,7 +16,7 @@ public class UserHandler {
     }
     
     public RegisterResult register(Request req, Response res) throws DataAccessException, Exception {
-        var registerRequest = getBody(req, RegisterRequest.class);
+        var registerRequest = getBody(req, UserData.class);
         return userService.register(registerRequest);
     }
 
