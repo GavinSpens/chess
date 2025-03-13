@@ -9,7 +9,7 @@ import spark.*;
 import com.google.gson.Gson;
 
 public class Server {
-    private final boolean useInMemoryDatabase = true;
+    private final boolean useInMemoryDatabase = false;
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
 

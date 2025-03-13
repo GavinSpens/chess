@@ -36,8 +36,7 @@ public class SQLDataAccess implements DataAccess {
             """
                     CREATE TABLE IF NOT EXISTS games (
                         id INT NOT NULL AUTO_INCREMENT,
-                        gameName VARCHAR(255) NOT NULL,
-                        gameState JSON,
+                        json TEXT NOT NULL,
                         PRIMARY KEY (id)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
                     """
@@ -61,7 +60,7 @@ public class SQLDataAccess implements DataAccess {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password, email FROM users WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(NULL, username);
+                ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUserData(rs);
@@ -79,7 +78,7 @@ public class SQLDataAccess implements DataAccess {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(NULL, authToken);
+                ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readAuthData(rs);
@@ -116,7 +115,7 @@ public class SQLDataAccess implements DataAccess {
             var statement = "SELECT id, json FROM games";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
-                    var games = new GameData[100];
+                    var games = new GameData[countGames()];
                     var i = 0;
                     while (rs.next()) {
                         games[i++] = readGameData(rs);
@@ -127,7 +126,26 @@ public class SQLDataAccess implements DataAccess {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new GameData[0];
+    }
+
+    @Override
+    public int countGames() {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, json FROM games";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    var i = 0;
+                    while (rs.next()) {
+                        i++;
+                    }
+                    return i;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @Override
@@ -183,6 +201,9 @@ public class SQLDataAccess implements DataAccess {
     @Override
     public void deleteAll() {
         try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement("SET FOREIGN_KEY_CHECKS = 0")) {
+                ps.executeUpdate();
+            }
             try (var ps = conn.prepareStatement("DELETE FROM users")) {
                 ps.executeUpdate();
             }
@@ -217,7 +238,7 @@ public class SQLDataAccess implements DataAccess {
         return new AuthData(authToken, username);
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+    private void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
@@ -227,7 +248,10 @@ public class SQLDataAccess implements DataAccess {
                     else if (param instanceof Integer p)
                         ps.setInt(i + 1, p);
                     else if (param instanceof GameData p)
-                        ps.setString(i + 1, p.toString());
+                    {
+                        String json = new Gson().toJson(p);
+                        ps.setString(i + 1, json);
+                    }
                     else if (param == null)
                         ps.setNull(i + 1, NULL);
                 }
@@ -235,10 +259,8 @@ public class SQLDataAccess implements DataAccess {
 
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    return rs.getInt(1);
+                    rs.getInt(1);
                 }
-
-                return 0;
             }
         } catch (SQLException e) {
             throw new DataAccessException(

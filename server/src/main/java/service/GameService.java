@@ -27,12 +27,13 @@ public class GameService {
             throw new DataAccessException("Error: Unauthorized");
         }
 
-        int gameID = dataAccess.getGames().length + 1;
+        int gameID = dataAccess.countGames() + 1;
         String gameName = createGameRequest.getGameName();
 
         GameData gameData = new GameData(
                 gameID, null, null, gameName, new ChessGame());
         dataAccess.createGame(gameData);
+        gameID = dataAccess.getGames()[gameID - 1].getId();
         return new CreateGameResult(gameID);
     }
 
@@ -56,12 +57,12 @@ public class GameService {
             throw new Exception("Error: Bad Request");
         }
 
-        if (playerColor == "WHITE") {
+        if (playerColor.equals("WHITE")) {
             if (whiteUsername != null) {
                 throw new RuntimeException("Error: Already Taken");
             }
             whiteUsername = myUsername;
-        } else if (playerColor == "BLACK") {
+        } else if (playerColor.equals("BLACK")) {
             if (blackUsername != null) {
                 throw new RuntimeException("Error: Already Taken");
             }

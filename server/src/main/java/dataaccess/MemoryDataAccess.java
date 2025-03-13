@@ -58,6 +58,11 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
+    public int countGames() {
+        return games.size();
+    }
+
+    @Override
     public void createUser(UserData user) {
         users.add(user);
     }
