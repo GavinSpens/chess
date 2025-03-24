@@ -108,4 +108,9 @@ public class ServerFacadeTests {
     void badJoinGame() {
         assertThrows(Exception.class, () -> facade.joinGame(new JoinGameRequest("BLACK", null, "invalid")));
     }
+
+    @Test
+    void clear() {
+        assertDoesNotThrow(() -> facade.clear());
+    }
 }
