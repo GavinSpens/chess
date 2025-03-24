@@ -2,9 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.BaseResult;
-import model.RegisterResult;
-import model.UserData;
+import model.*;
 
 import java.io.*;
 import java.net.*;
@@ -20,6 +18,11 @@ public class ServerFacade {
     public RegisterResult register(UserData registerRequest) throws ResponseException {
         var path = "/user";
         return this.makeRequest("POST", path, registerRequest, RegisterResult.class);
+    }
+
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
+        var path = "/session";
+        return this.makeRequest("POST", path, loginRequest, LoginResult.class);
     }
 
     public BaseResult clear() throws ResponseException {

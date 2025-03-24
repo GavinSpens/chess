@@ -1,5 +1,8 @@
 package client;
 
+import model.AuthData;
+import model.LoginRequest;
+import model.RegisterResult;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -15,6 +18,8 @@ public class ServerFacadeTests {
 
     UserData registerRequest = new UserData("player1", "password", "p1@email.com");
     UserData registerRequest2 = new UserData("player2", "password2", "p2@email.com");
+    AuthData authData;
+    LoginRequest loginRequest = new LoginRequest("player1", "password");
 
     @BeforeAll
     public static void init() {
@@ -27,7 +32,8 @@ public class ServerFacadeTests {
     @BeforeEach
     public void reset() throws Exception {
         facade.clear();
-        facade.register(registerRequest);
+        RegisterResult registerResult = facade.register(registerRequest);
+        authData = new AuthData(registerResult.getAuthToken(), registerResult.getUsername());
     }
 
     @AfterAll
@@ -38,12 +44,18 @@ public class ServerFacadeTests {
 
     @Test
     void register() throws Exception {
-        var authData = facade.register(registerRequest2);
-        assertTrue(authData.getAuthToken().length() > 10);
+        var registerResult = facade.register(registerRequest2);
+        assertTrue(registerResult.getAuthToken().length() > 10);
     }
 
     @Test
-    void badRegister() throws Exception {
+    void badRegister() {
         assertThrows(Exception.class, () -> facade.register(registerRequest));
+    }
+
+    @Test
+    void login() throws Exception {
+        var loginResult = facade.login(loginRequest);
+        assertTrue(loginResult.getAuthToken().length() > 10);
     }
 }
