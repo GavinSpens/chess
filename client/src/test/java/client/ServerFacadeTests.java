@@ -1,9 +1,6 @@
 package client;
 
-import model.AuthData;
-import model.LoginRequest;
-import model.RegisterResult;
-import model.UserData;
+import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
@@ -63,5 +60,10 @@ public class ServerFacadeTests {
     void badLogin() {
         var badLoginRequest = new LoginRequest("invalid", "invalid");
         assertThrows(Exception.class, () -> facade.login(badLoginRequest));
+    }
+
+    @Test
+    void logout() {
+        assertDoesNotThrow(() -> facade.logout(new LogoutRequest(authData.getAuthToken())));
     }
 }
