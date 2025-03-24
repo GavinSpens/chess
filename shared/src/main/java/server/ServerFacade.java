@@ -35,6 +35,16 @@ public class ServerFacade {
         return this.makeRequest("GET", path, null, ListGamesResult.class, auth);
     }
 
+    public CreateGameResult createGame(CreateGameRequest request) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("POST", path, new GameNameClass(request.getGameName()), CreateGameResult.class, request.getAuthToken());
+    }
+
+    public CreateGameResult joinGame(JoinGameRequest request) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("PUT", path, new JoinGameReq(request), CreateGameResult.class, request.getAuthToken());
+    }
+
     public BaseResult clear() throws ResponseException {
         var path = "/db";
         return this.makeRequest("DELETE", path, null, BaseResult.class, null);

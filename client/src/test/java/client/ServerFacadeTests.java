@@ -17,6 +17,9 @@ public class ServerFacadeTests {
     UserData registerRequest2 = new UserData("player2", "password2", "p2@email.com");
     AuthData authData;
     LoginRequest loginRequest = new LoginRequest("player1", "password");
+    CreateGameRequest createGameRequest;
+    JoinGameRequest joinGameRequest;
+    String auth;
 
     @BeforeAll
     public static void init() {
@@ -31,6 +34,10 @@ public class ServerFacadeTests {
         facade.clear();
         RegisterResult registerResult = facade.register(registerRequest);
         authData = new AuthData(registerResult.getAuthToken(), registerResult.getUsername());
+        auth = authData.getAuthToken();
+        createGameRequest = new CreateGameRequest("game1", auth);
+        CreateGameResult result = facade.createGame(createGameRequest);
+        joinGameRequest = new JoinGameRequest("WHITE", result.getGameID(), auth);
     }
 
     @AfterAll
@@ -80,5 +87,25 @@ public class ServerFacadeTests {
     @Test
     void badListGames() {
         assertThrows(Exception.class, () -> facade.listGames("invalid"));
+    }
+
+    @Test
+    void createGame() {
+        assertDoesNotThrow(() -> facade.createGame(new CreateGameRequest("game2", auth)));
+    }
+
+    @Test
+    void badCreateGame() {
+        assertThrows(Exception.class, () -> facade.createGame(new CreateGameRequest("invalid", "invalid")));
+    }
+
+    @Test
+    void joinGame() {
+        assertDoesNotThrow(() -> facade.joinGame(joinGameRequest));
+    }
+
+    @Test
+    void badJoinGame() {
+        assertThrows(Exception.class, () -> facade.joinGame(new JoinGameRequest("BLACK", null, "invalid")));
     }
 }

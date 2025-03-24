@@ -8,9 +8,9 @@ public class JoinGameReq {
     private final String playerColor;
     private final int gameID;
 
-    public JoinGameReq(String playerColor, int gameID) {
-        this.gameID = gameID;
-        this.playerColor = playerColor;
+    public JoinGameReq(JoinGameRequest joinGameRequest) {
+        gameID = joinGameRequest.getGameID();
+        playerColor = joinGameRequest.getPlayerColor();
     }
 
     public String getPlayerColor() {
@@ -27,7 +27,7 @@ public class JoinGameReq {
             return false;
         }
         JoinGameReq that = (JoinGameReq) o;
-        return gameID == that.gameID && playerColor == that.playerColor;
+        return gameID == that.gameID && Objects.equals(playerColor, that.playerColor);
     }
 
     @Override
