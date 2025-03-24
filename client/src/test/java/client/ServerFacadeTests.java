@@ -64,11 +64,21 @@ public class ServerFacadeTests {
 
     @Test
     void logout() {
-        assertDoesNotThrow(() -> facade.logout(new LogoutRequest(authData.getAuthToken())));
+        assertDoesNotThrow(() -> facade.logout(authData.getAuthToken()));
     }
 
     @Test
     void badLogout() {
-        assertThrows(Exception.class, () -> facade.logout(new LogoutRequest("invalid")));
+        assertThrows(Exception.class, () -> facade.logout("invalid"));
+    }
+
+    @Test
+    void listGames() {
+        assertDoesNotThrow(() -> facade.listGames(authData.getAuthToken()));
+    }
+
+    @Test
+    void badListGames() {
+        assertThrows(Exception.class, () -> facade.listGames("invalid"));
     }
 }
