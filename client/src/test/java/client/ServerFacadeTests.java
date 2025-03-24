@@ -66,4 +66,9 @@ public class ServerFacadeTests {
     void logout() {
         assertDoesNotThrow(() -> facade.logout(new LogoutRequest(authData.getAuthToken())));
     }
+
+    @Test
+    void badLogout() {
+        assertThrows(Exception.class, () -> facade.logout(new LogoutRequest("invalid")));
+    }
 }
