@@ -58,4 +58,10 @@ public class ServerFacadeTests {
         var loginResult = facade.login(loginRequest);
         assertTrue(loginResult.getAuthToken().length() > 10);
     }
+
+    @Test
+    void badLogin() {
+        var badLoginRequest = new LoginRequest("invalid", "invalid");
+        assertThrows(Exception.class, () -> facade.login(badLoginRequest));
+    }
 }
