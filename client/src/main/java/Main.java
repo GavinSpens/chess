@@ -6,8 +6,8 @@ public class Main {
     private static final String serverUrl = "http://localhost:" + port;
 
     public static void main(String[] args) {
-        Server server = new Server();
-        server.run(port);
+//        Server server = new Server();
+//        server.run(port);
 
         Repl repl = new Repl(serverUrl);
         repl.run();
