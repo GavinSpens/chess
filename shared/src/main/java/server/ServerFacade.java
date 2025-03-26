@@ -14,6 +14,10 @@ public class ServerFacade {
         serverUrl = "http://localhost:" + port;
     }
 
+    public ServerFacade(String serverUrl) {
+        this.serverUrl = serverUrl;
+    }
+
 
     public RegisterResult register(UserData registerRequest) throws ResponseException {
         var path = "/user";

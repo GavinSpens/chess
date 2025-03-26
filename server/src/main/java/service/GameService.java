@@ -57,12 +57,12 @@ public class GameService {
             throw new Exception("Error: Bad Request");
         }
 
-        if (playerColor.equals("WHITE")) {
+        if (playerColor.equalsIgnoreCase("WHITE")) {
             if (whiteUsername != null) {
                 throw new RuntimeException("Error: Already Taken");
             }
             whiteUsername = myUsername;
-        } else if (playerColor.equals("BLACK")) {
+        } else if (playerColor.equalsIgnoreCase("BLACK")) {
             if (blackUsername != null) {
                 throw new RuntimeException("Error: Already Taken");
             }

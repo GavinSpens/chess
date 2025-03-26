@@ -13,6 +13,12 @@ public class UserData {
         this.email = email;
     }
 
+    public UserData(LoginRequest loginRequest) {
+        this.username = loginRequest.getUsername();
+        this.password = loginRequest.getPassword();
+        this.email = null;
+    }
+
     public String getUsername() {
         return username;
     }
