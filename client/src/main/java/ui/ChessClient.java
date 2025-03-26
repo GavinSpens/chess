@@ -6,7 +6,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import exception.ResponseException;
 import model.*;
-import serverFacade.ServerFacade;
+import serverfacade.ServerFacade;
 
 public class ChessClient {
     private UserData userData = null;
