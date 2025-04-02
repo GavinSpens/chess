@@ -202,7 +202,7 @@ public class ChessClient {
         if ((i + j) % 2 == 0) {
             return EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
         } else {
-            return EscapeSequences.SET_BG_COLOR_DARK_GREY;
+            return EscapeSequences.SET_BG_COLOR_BLUE;
         }
     }
 
