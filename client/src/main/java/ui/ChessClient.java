@@ -25,15 +25,15 @@ public class ChessClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "register"    -> register(params);
-                case "login"       -> login(params);
-                case "logout"      -> logout(params);
-                case "listgames"   -> listGames(params);
-                case "creategame"  -> createGame(params);
-                case "join"        -> joinGame(params);
-                case "observegame" -> observeGame(params);
-                case "quit"        -> "quit";
-                default            -> help();
+                case "register", "r" -> register(params);
+                case "login", "l" -> login(params);
+                case "logout" -> logout(params);
+                case "listgames", "list" -> listGames(params);
+                case "creategame", "create" -> createGame(params);
+                case "joingame", "join" -> joinGame(params);
+                case "observegame", "o" -> observeGame(params);
+                case "quit", "q" -> "quit";
+                default -> help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -49,7 +49,7 @@ public class ChessClient {
             state = State.SIGNED_IN;
             authToken = registerResult.getAuthToken();
 
-            return String.format("You signed in as %s.", userData.getUsername());
+            return String.format("You signed in as %s.\n\nCurrent Games:\n%s", userData.getUsername(), listGames());
         }
         throw new ResponseException(400, "FAILED\nExpected: <USERNAME> <PASSWORD> <EMAIL>");
     }
@@ -63,7 +63,7 @@ public class ChessClient {
             state = State.SIGNED_IN;
             authToken = loginResult.getAuthToken();
 
-            return String.format("You signed in as %s.", userData.getUsername());
+            return String.format("You signed in as %s.\n\nCurrent Games:\n%s", userData.getUsername(), listGames());
         }
         throw new ResponseException(400, "FAILED\nExpected: <USERNAME> <PASSWORD>");
     }
