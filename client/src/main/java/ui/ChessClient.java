@@ -51,7 +51,7 @@ public class ChessClient {
 
             return String.format("You signed in as %s.", userData.getUsername());
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
+        throw new ResponseException(400, "FAILED\nExpected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws ResponseException {
@@ -65,7 +65,7 @@ public class ChessClient {
 
             return String.format("You signed in as %s.", userData.getUsername());
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException(400, "FAILED\nExpected: <USERNAME> <PASSWORD>");
     }
 
     public String logout(String... ignored) throws ResponseException {
@@ -107,7 +107,7 @@ public class ChessClient {
                     params[0]
             );
         }
-        throw new ResponseException(400, "Expected: <GAME_NAME>");
+        throw new ResponseException(400, "FAILED\nExpected: <GAME_NAME>");
     }
 
     public String joinGame(String... params) throws ResponseException {
@@ -128,7 +128,7 @@ public class ChessClient {
                 return listGames("");
             }
         }
-        throw new ResponseException(400, "Expected: <GAME_ID> [WHITE|BLACK]");
+        throw new ResponseException(400, "FAILED\nExpected: <GAME_ID> [WHITE|BLACK]");
     }
 
     public String observeGame(String... params) throws ResponseException {
@@ -140,7 +140,7 @@ public class ChessClient {
 
             return EscapeSequences.ERASE_SCREEN + gameString(game, "WHITE");
         }
-        throw new ResponseException(400, "Expected: <GAME_ID");
+        throw new ResponseException(400, "FAILED\nExpected: <GAME_ID");
     }
 
     public String help() {
@@ -167,33 +167,33 @@ public class ChessClient {
         var gameBoard = gameData.game().getBoard().board;
         StringBuilder output = new StringBuilder("\n");
         if (playerColor.equalsIgnoreCase("WHITE")) {
-            output.append("   a  b  c  d  e  f  g  h   \n");
+            output.append("    a  b  c  d  e  f  g  h   \n");
             for (int i = 0; i < 8; i++) {
                 output.append(EscapeSequences.RESET_BG_COLOR);
-                output.append(String.format(" %d ", i));
+                output.append(String.format(" %d ", 8 - i));
                 for (int j = 0; j < 8; j++) {
                     output.append(swapColor(i, j));
-                    output.append(chessPiece(gameBoard[i][j]));
+                    output.append(chessPiece(gameBoard[7 - i][j]));
                 }
                 output.append(EscapeSequences.RESET_BG_COLOR);
-                output.append(String.format(" %d \n", i));
+                output.append(String.format(" %d \n", 8 - i));
             }
-            output.append("   a  b  c  d  e  f  g  h   \n");
+            output.append("    a  b  c  d  e  f  g  h   \n");
         } else if (playerColor.equalsIgnoreCase("BLACK")) {
-            output.append("   h  g  f  e  d  c  b  a   \n");
+            output.append("    h  g  f  e  d  c  b  a   \n");
             for (int i = 0; i < 8; i++) {
                 output.append(EscapeSequences.RESET_BG_COLOR);
-                output.append(String.format(" %d ", i));
+                output.append(String.format(" %d ", i + 1));
                 for (int j = 0; j < 8; j++) {
                     output.append(swapColor(i, j));
-                    output.append(chessPiece(gameBoard[7 - i][7 - j]));
+                    output.append(chessPiece(gameBoard[i][7 - j]));
                 }
                 output.append(EscapeSequences.RESET_BG_COLOR);
-                output.append(String.format(" %d \n", i));
+                output.append(String.format(" %d \n", i + 1));
             }
-            output.append("   h  g  f  e  d  c  b  a   \n");
+            output.append("    h  g  f  e  d  c  b  a   \n");
         } else {
-            throw new ResponseException(400, "Expected: <GAME_ID> [WHITE|BLACK]");
+            throw new ResponseException(400, "FAILED\nExpected: <GAME_ID> [WHITE|BLACK]");
         }
         return output.toString();
     }

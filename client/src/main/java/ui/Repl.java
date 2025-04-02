@@ -11,7 +11,7 @@ public class Repl {
 
     public void run() {
         System.out.println("♕ 240 Chess Client ♕\n");
-        System.out.println("\uD83D\uDC36 Welcome to Chess. Sign in to start.");
+        System.out.println("Welcome to Chess. Sign in to start.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
