@@ -17,14 +17,16 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
+            System.out.print(EscapeSequences.RESET_TEXT_COLOR);
             printPrompt();
             String line = scanner.nextLine();
 
             try {
                 result = client.eval(line);
                 System.out.print(result);
-            } catch (Throwable e) {
-                var msg = e.toString();
+            } catch (Exception e) {
+                var msg = e.getMessage();
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
                 System.out.print(msg);
             }
         }

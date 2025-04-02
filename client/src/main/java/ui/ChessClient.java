@@ -19,25 +19,21 @@ public class ChessClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public String eval(String input) {
-        try {
-            var tokens = input.toLowerCase().split(" ");
-            var cmd = (tokens.length > 0) ? tokens[0] : "help";
-            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "register", "r" -> register(params);
-                case "login", "l" -> login(params);
-                case "logout" -> logout(params);
-                case "listgames", "list" -> listGames(params);
-                case "creategame", "create" -> createGame(params);
-                case "joingame", "join" -> joinGame(params);
-                case "observegame", "o" -> observeGame(params);
-                case "quit", "q" -> "quit";
-                default -> help();
+    public String eval(String input) throws ResponseException {
+        var tokens = input.toLowerCase().split(" ");
+        var cmd = (tokens.length > 0) ? tokens[0] : "help";
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (cmd) {
+            case "register", "r" -> register(params);
+            case "login", "l" -> login(params);
+            case "logout" -> logout(params);
+            case "listgames", "list" -> listGames(params);
+            case "creategame", "create" -> createGame(params);
+            case "joingame", "join" -> joinGame(params);
+            case "observegame", "o" -> observeGame(params);
+            case "quit", "q" -> "quit";
+            default -> help();
             };
-        } catch (ResponseException ex) {
-            return ex.getMessage();
-        }
     }
 
     public String register(String... params) throws ResponseException {
@@ -100,10 +96,9 @@ public class ChessClient {
             var input = new CreateGameRequest(params[0], authToken);
             server.createGame(input);
 
-            return String.format("""
-                            Created Game '%s'
-                            Use listGames to get id
-                            Use join <GAME_ID> [WHITE|BLACK] to join""",
+            var listOutput = listGames().split("\n");
+
+            return String.format("Created Game '%s'.",
                     params[0]
             );
         }
@@ -111,6 +106,7 @@ public class ChessClient {
     }
 
     public String joinGame(String... params) throws ResponseException {
+        String ignored = listGames();
         if (params.length == 2) {
             assertSignedIn();
             var id = Integer.parseInt(params[0]);
@@ -200,9 +196,9 @@ public class ChessClient {
 
     private String swapColor(int i, int j) {
         if ((i + j) % 2 == 0) {
-            return EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+            return EscapeSequences.SET_BG_COLOR_GREEN;
         } else {
-            return EscapeSequences.SET_BG_COLOR_BLUE;
+            return EscapeSequences.SET_BG_COLOR_DARK_GREEN;
         }
     }
 
