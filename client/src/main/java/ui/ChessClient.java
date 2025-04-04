@@ -96,8 +96,6 @@ public class ChessClient {
             var input = new CreateGameRequest(params[0], authToken);
             server.createGame(input);
 
-            var listOutput = listGames().split("\n");
-
             return String.format("Created Game '%s'.",
                     params[0]
             );
