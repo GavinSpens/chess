@@ -1,9 +1,15 @@
 package ui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.*;
 import serverfacade.ServerFacade;
@@ -117,7 +123,7 @@ public class ChessClient {
                 server.joinGame(input);
                 state = State.IN_GAME;
 
-                return EscapeSequences.ERASE_SCREEN + gameString(game, params[1]);
+                return EscapeSequences.ERASE_SCREEN + gameString(game, params[1], null);
             } catch (IndexOutOfBoundsException e) {
                 return listGames("");
             }
@@ -132,7 +138,7 @@ public class ChessClient {
             GameData game = games[id - 1];
             state = State.OBSERVING;
 
-            return EscapeSequences.ERASE_SCREEN + gameString(game, "WHITE");
+            return EscapeSequences.ERASE_SCREEN + gameString(game, "WHITE", null);
         }
         throw new ResponseException(400, "FAILED\nExpected: <GAME_ID");
     }
@@ -157,7 +163,12 @@ public class ChessClient {
                 """;
     }
 
-    private String gameString(GameData gameData, String playerColor) throws ResponseException {
+    private String gameString(GameData gameData, String playerColor, ChessPosition selectedPiecePos) throws ResponseException {
+        ArrayList<ChessMove> pieceMoves = new ArrayList<>();
+        if (selectedPiecePos != null) {
+            pieceMoves = (ArrayList<ChessMove>) gameData.game().validMoves(selectedPiecePos);
+        }
+
         var gameBoard = gameData.game().getBoard().board;
         StringBuilder output = new StringBuilder("\n");
         if (playerColor.equalsIgnoreCase("WHITE")) {
@@ -166,7 +177,7 @@ public class ChessClient {
             for (int i = 0; i < 8; i++) {
                 output.append(String.format(" %d ", 8 - i));
                 for (int j = 0; j < 8; j++) {
-                    output.append(swapColor(i, j));
+                    output.append(swapColor(i, j, pieceMoves));
                     output.append(chessPiece(gameBoard[7 - i][j]));
                 }
                 output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
@@ -179,7 +190,7 @@ public class ChessClient {
             for (int i = 0; i < 8; i++) {
                 output.append(String.format(" %d ", i + 1));
                 for (int j = 0; j < 8; j++) {
-                    output.append(swapColor(i, j));
+                    output.append(swapColor(i, j, pieceMoves));
                     output.append(chessPiece(gameBoard[i][7 - j]));
                 }
                 output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
@@ -193,11 +204,26 @@ public class ChessClient {
         return output.toString();
     }
 
-    private String swapColor(int i, int j) {
-        if ((i + j) % 2 == 0) {
-            return EscapeSequences.SET_BG_COLOR_WHITE;
+    private String swapColor(int i, int j, ArrayList<ChessMove> pieceMoves) {
+        if (pieceMoves.isEmpty()) {
+            if ((i + j) % 2 == 0) {
+                return EscapeSequences.SET_BG_COLOR_WHITE;
+            } else {
+                return EscapeSequences.SET_BG_COLOR_BLACK;
+            }
         } else {
-            return EscapeSequences.SET_BG_COLOR_BLACK;
+            var thisPos = new ChessPosition(i + 1, j + 1);
+            if (Objects.equals(pieceMoves.getFirst().getStartPosition(), thisPos)) {
+                return EscapeSequences.SET_BG_COLOR_YELLOW;
+            } else if (pieceMoves.stream().map(ChessMove::getEndPosition).toList().contains(thisPos)) {
+                if ((i + j) % 2 == 0) {
+                    return EscapeSequences.SET_BG_COLOR_GREEN;
+                } else {
+                    return EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+                }
+            } else {
+                return swapColor(i, j, new ArrayList<>());
+            }
         }
     }
 
