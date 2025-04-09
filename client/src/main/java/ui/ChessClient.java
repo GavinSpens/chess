@@ -2,9 +2,7 @@ package ui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import chess.ChessGame;
 import chess.ChessMove;
@@ -20,6 +18,10 @@ public class ChessClient {
     private final ServerFacade server;
     private State state = State.SIGNED_OUT;
     private GameData[] games = null;
+
+    private GameData currentGame = null;
+    private String playerColor = "";
+
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -37,9 +39,14 @@ public class ChessClient {
             case "creategame", "create" -> createGame(params);
             case "joingame", "join" -> joinGame(params);
             case "observegame", "o" -> observeGame(params);
+            case "redraw" -> redraw(params);
             case "quit", "q" -> "quit";
             default -> help();
             };
+    }
+
+    private String redraw(String[] params) throws ResponseException {
+        return gameString(currentGame, playerColor, null);
     }
 
     public String register(String... params) throws ResponseException {
@@ -121,11 +128,14 @@ public class ChessClient {
                 // join game
                 var input = new JoinGameRequest(params[1], id, authToken);
                 server.joinGame(input);
-                state = State.IN_GAME;
+                state = State.IN_GAME_NOT_MY_TURN;
+                currentGame = game;
+                playerColor = params[1];
 
-                return EscapeSequences.ERASE_SCREEN + gameString(game, params[1], null);
+                return gameString(game, params[1], null);
+
             } catch (IndexOutOfBoundsException e) {
-                return listGames("");
+                throw new ResponseException(400, listGames(""));
             }
         }
         throw new ResponseException(400, "FAILED\nExpected: <GAME_ID> [WHITE|BLACK]");
