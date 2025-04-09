@@ -2,6 +2,7 @@ package ui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 import chess.ChessGame;
@@ -40,12 +41,63 @@ public class ChessClient {
             case "joingame", "join" -> joinGame(params);
             case "observegame", "o" -> observeGame(params);
             case "redraw" -> redraw(params);
+            case "highlight", "h" -> highlightLegalMoves(params);
             case "quit", "q" -> "quit";
             default -> help();
             };
     }
 
-    private String redraw(String[] params) throws ResponseException {
+    private ChessPosition getPosFromStr(String pos) throws ResponseException {
+        if (pos.length() != 2) {
+            throw new ResponseException(400, "FAILED\nExpected: <POS>\nEXAMPLES: A1 or h8\n");
+        }
+        String col = String.valueOf(pos.charAt(0));
+        String row = String.valueOf(pos.charAt(1));
+
+        try {
+            Map<String, Integer> mappings = Map.of(
+                    "a", 1,
+                    "b", 2,
+                    "c", 3,
+                    "d", 4,
+                    "e", 5,
+                    "f", 6,
+                    "g", 7,
+                    "h", 8
+            );
+            int intRow = Integer.parseInt(row);
+            int intCol;
+            if (mappings.containsKey(col)) {
+                intCol = mappings.get(col);
+            } else {
+                intCol = Integer.parseInt(col);
+            }
+            if (!(0 < intCol && intCol <= 8 && 0 < intRow && intRow <= 8)) {
+                throw new Exception("");
+            }
+            return new ChessPosition(intRow, intCol);
+        } catch (Exception e) {
+            throw new ResponseException(400, "FAILED\nExpected: <ROW> <COL>");
+        }
+    }
+
+    private String highlightLegalMoves(String... params) throws ResponseException {
+        assertInGame();
+        if (params.length == 1) {
+            ChessPosition selectedPiece = getPosFromStr(params[0]);
+            return gameString(currentGame, playerColor, selectedPiece);
+        }
+        throw new ResponseException(400, "FAILED\nExpected: <ROW> <COL>");
+    }
+
+    private void assertInGame() throws ResponseException {
+        if (state != State.IN_GAME_NOT_MY_TURN && state != State.IN_GAME_MY_TURN && state != State.OBSERVING) {
+            throw new ResponseException(400, "Join or observe a game first");
+        }
+    }
+
+    private String redraw(String... ignored) throws ResponseException {
+        assertInGame();
         return gameString(currentGame, playerColor, null);
     }
 
@@ -147,8 +199,10 @@ public class ChessClient {
             var id = Integer.parseInt(params[0]);
             GameData game = games[id - 1];
             state = State.OBSERVING;
+            currentGame = game;
+            playerColor = "WHITE";
 
-            return EscapeSequences.ERASE_SCREEN + gameString(game, "WHITE", null);
+            return gameString(game, playerColor, null);
         }
         throw new ResponseException(400, "FAILED\nExpected: <GAME_ID");
     }
@@ -187,7 +241,10 @@ public class ChessClient {
             for (int i = 0; i < 8; i++) {
                 output.append(String.format(" %d ", 8 - i));
                 for (int j = 0; j < 8; j++) {
-                    output.append(swapColor(i, j, pieceMoves));
+                    output.append(swapColor(8 - i, j + 1, pieceMoves));
+                    if (Objects.equals(selectedPiecePos, new ChessPosition(8 - i, j + 1))) {
+                        output.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                    }
                     output.append(chessPiece(gameBoard[7 - i][j]));
                 }
                 output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
@@ -200,7 +257,10 @@ public class ChessClient {
             for (int i = 0; i < 8; i++) {
                 output.append(String.format(" %d ", i + 1));
                 for (int j = 0; j < 8; j++) {
-                    output.append(swapColor(i, j, pieceMoves));
+                    output.append(swapColor(i + 1, 8 - j, pieceMoves));
+                    if (Objects.equals(selectedPiecePos, new ChessPosition(i + 1, 8 - j))) {
+                        output.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                    }
                     output.append(chessPiece(gameBoard[i][7 - j]));
                 }
                 output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
@@ -216,17 +276,15 @@ public class ChessClient {
 
     private String swapColor(int i, int j, ArrayList<ChessMove> pieceMoves) {
         if (pieceMoves.isEmpty()) {
-            if ((i + j) % 2 == 0) {
+            if ((i + j) % 2 != 0) {
                 return EscapeSequences.SET_BG_COLOR_WHITE;
             } else {
                 return EscapeSequences.SET_BG_COLOR_BLACK;
             }
         } else {
-            var thisPos = new ChessPosition(i + 1, j + 1);
-            if (Objects.equals(pieceMoves.getFirst().getStartPosition(), thisPos)) {
-                return EscapeSequences.SET_BG_COLOR_YELLOW;
-            } else if (pieceMoves.stream().map(ChessMove::getEndPosition).toList().contains(thisPos)) {
-                if ((i + j) % 2 == 0) {
+            var thisPos = new ChessPosition(i, j);
+            if (pieceMoves.stream().map(ChessMove::getEndPosition).toList().contains(thisPos)) {
+                if ((i + j) % 2 != 0) {
                     return EscapeSequences.SET_BG_COLOR_GREEN;
                 } else {
                     return EscapeSequences.SET_BG_COLOR_DARK_GREEN;
