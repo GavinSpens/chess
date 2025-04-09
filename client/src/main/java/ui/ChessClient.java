@@ -161,31 +161,32 @@ public class ChessClient {
         var gameBoard = gameData.game().getBoard().board;
         StringBuilder output = new StringBuilder("\n");
         if (playerColor.equalsIgnoreCase("WHITE")) {
+            output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
             output.append("    a  b  c  d  e  f  g  h   \n");
             for (int i = 0; i < 8; i++) {
-                output.append(EscapeSequences.RESET_BG_COLOR);
                 output.append(String.format(" %d ", 8 - i));
                 for (int j = 0; j < 8; j++) {
                     output.append(swapColor(i, j));
                     output.append(chessPiece(gameBoard[7 - i][j]));
                 }
-                output.append(EscapeSequences.RESET_BG_COLOR);
+                output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
                 output.append(String.format(" %d \n", 8 - i));
             }
             output.append("    a  b  c  d  e  f  g  h   \n");
         } else if (playerColor.equalsIgnoreCase("BLACK")) {
+            output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
             output.append("    h  g  f  e  d  c  b  a   \n");
             for (int i = 0; i < 8; i++) {
-                output.append(EscapeSequences.RESET_BG_COLOR);
                 output.append(String.format(" %d ", i + 1));
                 for (int j = 0; j < 8; j++) {
                     output.append(swapColor(i, j));
                     output.append(chessPiece(gameBoard[i][7 - j]));
                 }
-                output.append(EscapeSequences.RESET_BG_COLOR);
+                output.append(EscapeSequences.SET_BG_COLOR_DARK_GREY + EscapeSequences.SET_TEXT_COLOR_WHITE);
                 output.append(String.format(" %d \n", i + 1));
             }
             output.append("    h  g  f  e  d  c  b  a   \n");
+            output.append(EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR);
         } else {
             throw new ResponseException(400, "FAILED\nExpected: <GAME_ID> [WHITE|BLACK]");
         }
@@ -194,9 +195,9 @@ public class ChessClient {
 
     private String swapColor(int i, int j) {
         if ((i + j) % 2 == 0) {
-            return EscapeSequences.SET_BG_COLOR_GREEN;
+            return EscapeSequences.SET_BG_COLOR_WHITE;
         } else {
-            return EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+            return EscapeSequences.SET_BG_COLOR_BLACK;
         }
     }
 
@@ -207,9 +208,9 @@ public class ChessClient {
 
         String setTextColor;
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            setTextColor = EscapeSequences.SET_TEXT_COLOR_WHITE;
+            setTextColor = EscapeSequences.SET_TEXT_COLOR_BLUE;
         } else {
-            setTextColor = EscapeSequences.SET_TEXT_COLOR_BLACK;
+            setTextColor = EscapeSequences.SET_TEXT_COLOR_RED;
         }
         return setTextColor + switch (piece.getPieceType()) {
             case KING   -> " K ";
