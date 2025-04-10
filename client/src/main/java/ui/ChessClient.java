@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
 import model.*;
 import serverfacade.ServerFacade;
@@ -42,9 +39,68 @@ public class ChessClient {
             case "observegame", "o" -> observeGame(params);
             case "redraw" -> redraw(params);
             case "highlight", "h" -> highlightLegalMoves(params);
+            case "leave" -> leave(params);
+            case "makeMove" -> makeMove(params);
+            case "resign" -> resign(params);
             case "quit", "q" -> "quit";
             default -> help();
             };
+    }
+
+    private String leave(String... params) {
+        state = State.SIGNED_IN;
+        currentGame = null;
+        playerColor = "";
+        return "Left Game";
+    }
+
+    private ChessPiece.PieceType getPromoPieceTypeFromString(String param) {
+        Map<String, ChessPiece.PieceType> mappings = Map.of(
+                "knight", ChessPiece.PieceType.KNIGHT,
+                "bishop", ChessPiece.PieceType.BISHOP,
+                "rook", ChessPiece.PieceType.ROOK,
+                "queen", ChessPiece.PieceType.QUEEN
+        );
+        return mappings.get(param);
+    }
+    
+    private ChessMove getMoveFromStr(String... params) throws ResponseException {
+        ChessPosition fromPos = getPosFromStr(params[0]);
+        ChessPosition toPos = getPosFromStr(params[1]);
+        if (params.length == 3) {
+            ChessPiece.PieceType promo = getPromoPieceTypeFromString(params[2]);
+            return new ChessMove(fromPos, toPos, promo);
+        }
+        return new ChessMove(fromPos, toPos, null);
+    }
+
+    private void validateMove(ChessMove move) throws InvalidMoveException {
+        ChessPiece piece = currentGame.game().getBoard().getPiece(move.getStartPosition());
+        if (piece == null || !Objects.equals(piece.getTeamColor().toString(), playerColor)) {
+            throw new InvalidMoveException("");
+        }
+    }
+
+    private String makeMove(String... params) throws ResponseException {
+        if (params.length != 2 && params.length != 3) {
+            throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
+        }
+        try {
+            ChessMove move = getMoveFromStr(params);
+            validateMove(move);
+            currentGame.game().makeMove(move);
+            
+            return "";
+        } catch (ResponseException ignored) {
+            throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
+        } catch (InvalidMoveException e) {
+            throw new ResponseException(400, "FAILED\nIllegal Move");
+        }
+    }
+
+    private String resign(String... params) {
+
+        return "Resigned";
     }
 
     private ChessPosition getPosFromStr(String pos) throws ResponseException {
@@ -77,7 +133,7 @@ public class ChessClient {
             }
             return new ChessPosition(intRow, intCol);
         } catch (Exception e) {
-            throw new ResponseException(400, "FAILED\nExpected: <ROW> <COL>");
+            throw new ResponseException(400, "FAILED\nExpected: <POS>\nEXAMPLES: A1 or h8\n");
         }
     }
 
@@ -87,7 +143,7 @@ public class ChessClient {
             ChessPosition selectedPiece = getPosFromStr(params[0]);
             return gameString(currentGame, playerColor, selectedPiece);
         }
-        throw new ResponseException(400, "FAILED\nExpected: <ROW> <COL>");
+        throw new ResponseException(400, "FAILED\nExpected: <POS>\nEXAMPLES: A1 or h8\n");
     }
 
     private void assertInGame() throws ResponseException {
@@ -214,6 +270,16 @@ public class ChessClient {
                     - quit
                     - login <USERNAME> <PASSWORD>
                     - register <USERNAME> <PASSWORD> <EMAIL>
+                    """;
+        }
+        if (state == State.IN_GAME_NOT_MY_TURN || state == State.IN_GAME_MY_TURN) {
+            return """
+                    - help
+                    - redraw
+                    - leave
+                    - makeMove <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE>?
+                    - resign
+                    - highlight <POS>
                     """;
         }
         return """
