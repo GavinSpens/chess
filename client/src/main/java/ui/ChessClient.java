@@ -9,6 +9,8 @@ import chess.*;
 import exception.ResponseException;
 import model.*;
 import serverfacade.ServerFacade;
+import websocket.WebSocketFacade;
+import websocket.NotificationHandler;
 
 public class ChessClient {
     private UserData userData = null;
@@ -20,9 +22,14 @@ public class ChessClient {
     private GameData currentGame = null;
     private String playerColor = "";
 
+    private WebSocketFacade ws = null;
+    private final NotificationHandler repl;
+    private final String url = "http://localhost:8080";
 
-    public ChessClient(String serverUrl) {
+
+    public ChessClient(String serverUrl, NotificationHandler repl) {
         server = new ServerFacade(serverUrl);
+        this.repl = repl;
     }
 
     public String eval(String input) throws ResponseException {
@@ -47,7 +54,10 @@ public class ChessClient {
             };
     }
 
-    private String leave(String... ignored) {
+    private String leave(String... ignored) throws ResponseException {
+        ws.leaveGame(authToken, currentGame.gameID());
+        ws = null;
+
         state = State.SIGNED_IN;
         currentGame = null;
         playerColor = "";
@@ -73,13 +83,6 @@ public class ChessClient {
         }
         return new ChessMove(fromPos, toPos, null);
     }
-
-//    private void validateMove(ChessMove move) throws InvalidMoveException {
-//        ChessPiece piece = currentGame.game().getBoard().getPiece(move.getStartPosition());
-//        if (piece == null || !Objects.equals(piece.getTeamColor().toString(), playerColor)) {
-//            throw new InvalidMoveException("");
-//        }
-//    }
 
     private String getChecks() {
         if (currentGame.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
@@ -276,6 +279,9 @@ public class ChessClient {
                 if (Objects.equals(playerColor, "white")) {
                     state = State.IN_GAME_MY_TURN;
                 }
+                ws = new WebSocketFacade(url, repl);
+                ws.connectToGame(authToken, game.getId());
+
 
                 return gameString(game, params[1], null);
 
@@ -294,6 +300,7 @@ public class ChessClient {
             state = State.OBSERVING;
             currentGame = game;
             playerColor = "WHITE";
+            ws = new WebSocketFacade(url, repl);
 
             return gameString(game, playerColor, null);
         }

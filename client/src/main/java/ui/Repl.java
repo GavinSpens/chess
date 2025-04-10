@@ -1,12 +1,15 @@
 package ui;
 
+import websocket.NotificationHandler;
+import websocket.messages.Notification;
+
 import java.util.Scanner;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private final ChessClient client;
 
     public Repl(String serverUrl) {
-        client = new ChessClient(serverUrl);
+        client = new ChessClient(serverUrl, this);
     }
 
     public void run() {
@@ -37,4 +40,8 @@ public class Repl {
         System.out.print("\n" + ">>> ");
     }
 
+    @Override
+    public void notify(Notification notification) {
+        System.out.print(notification.toString());
+    }
 }
