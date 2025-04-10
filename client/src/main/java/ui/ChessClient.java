@@ -40,14 +40,14 @@ public class ChessClient {
             case "redraw" -> redraw(params);
             case "highlight", "h" -> highlightLegalMoves(params);
             case "leave" -> leave(params);
-            case "makeMove" -> makeMove(params);
+            case "makemove" -> makeMove(params);
             case "resign" -> resign(params);
             case "quit", "q" -> "quit";
             default -> help();
             };
     }
 
-    private String leave(String... params) {
+    private String leave(String... ignored) {
         state = State.SIGNED_IN;
         currentGame = null;
         playerColor = "";
@@ -74,23 +74,55 @@ public class ChessClient {
         return new ChessMove(fromPos, toPos, null);
     }
 
-    private void validateMove(ChessMove move) throws InvalidMoveException {
-        ChessPiece piece = currentGame.game().getBoard().getPiece(move.getStartPosition());
-        if (piece == null || !Objects.equals(piece.getTeamColor().toString(), playerColor)) {
-            throw new InvalidMoveException("");
+//    private void validateMove(ChessMove move) throws InvalidMoveException {
+//        ChessPiece piece = currentGame.game().getBoard().getPiece(move.getStartPosition());
+//        if (piece == null || !Objects.equals(piece.getTeamColor().toString(), playerColor)) {
+//            throw new InvalidMoveException("");
+//        }
+//    }
+
+    private String getChecks() {
+        if (currentGame.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            return "White is in Checkmate.\n"
+                    + EscapeSequences.SET_TEXT_BLINKING
+                    + EscapeSequences.SET_TEXT_COLOR_GREEN
+                    + "BLACK WINS\n";
         }
+        if (currentGame.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            return "Black is in Checkmate.\n"
+                    + EscapeSequences.SET_TEXT_BLINKING
+                    + EscapeSequences.SET_TEXT_COLOR_GREEN
+                    + "WHITE WINS\n";
+        }
+        if (currentGame.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+            return EscapeSequences.SET_TEXT_BLINKING + "White is in Check\n";
+        }
+        if (currentGame.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+            return EscapeSequences.SET_TEXT_BLINKING + "Black is in Check\n";
+        }
+        if (currentGame.game().isInStalemate(ChessGame.TeamColor.BLACK)
+                || currentGame.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
+            return EscapeSequences.SET_TEXT_BLINKING
+                    + EscapeSequences.SET_TEXT_COLOR_GREEN
+                    + "STALEMATE\n";
+        }
+        return "";
     }
 
     private String makeMove(String... params) throws ResponseException {
         if (params.length != 2 && params.length != 3) {
             throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
         }
+        if (state != State.IN_GAME_MY_TURN) {
+            throw new ResponseException(400, "Not your turn");
+        }
         try {
             ChessMove move = getMoveFromStr(params);
-            validateMove(move);
             currentGame.game().makeMove(move);
-            
-            return "";
+            String checks = getChecks();
+            state = State.IN_GAME_NOT_MY_TURN;
+
+            return gameString(currentGame, playerColor, null) + checks;
         } catch (ResponseException ignored) {
             throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
         } catch (InvalidMoveException e) {
@@ -98,8 +130,8 @@ public class ChessClient {
         }
     }
 
-    private String resign(String... params) {
-
+    private String resign(String... ignored) {
+        state = State.IN_GAME_NOT_MY_TURN;
         return "Resigned";
     }
 
@@ -147,7 +179,9 @@ public class ChessClient {
     }
 
     private void assertInGame() throws ResponseException {
-        if (state != State.IN_GAME_NOT_MY_TURN && state != State.IN_GAME_MY_TURN && state != State.OBSERVING) {
+        if (state != State.IN_GAME_NOT_MY_TURN
+                && state != State.IN_GAME_MY_TURN
+                && state != State.OBSERVING) {
             throw new ResponseException(400, "Join or observe a game first");
         }
     }
@@ -239,6 +273,9 @@ public class ChessClient {
                 state = State.IN_GAME_NOT_MY_TURN;
                 currentGame = game;
                 playerColor = params[1];
+                if (Objects.equals(playerColor, "white")) {
+                    state = State.IN_GAME_MY_TURN;
+                }
 
                 return gameString(game, params[1], null);
 
