@@ -13,18 +13,11 @@ import java.util.Objects;
 public class ChessGame {
     private ChessBoard gameBoard;
     private TeamColor teamTurn;
-    private GameState gameState;
 
     public ChessGame() {
         gameBoard = new ChessBoard();
         gameBoard.resetBoard();
         teamTurn = TeamColor.WHITE;
-        gameState = GameState.RUNNING;
-    }
-
-    public enum GameState {
-        RUNNING,
-        END
     }
 
     /**
@@ -156,10 +149,6 @@ public class ChessGame {
             }
         }
         return true;
-    }
-
-    public GameState getGameState() {
-        return gameState;
     }
 
     /**

@@ -74,18 +74,6 @@ public class WebSocketHandler {
     }
 
     private void resign(String username, int gameId, Session session) {
-        SQLDataAccess sqlDataAccess = SQLDataAccess.getInstance();
-        GameData game = sqlDataAccess.getGame(gameId);
-        game.game()
+        connections.broadcast(username, );
     }
-
-//    public void makeNoise(String petName, String sound) throws ResponseException {
-//        try {
-//            var message = String.format("%s says %s", petName, sound);
-//            var notification = new Notification(Notification.Type.NOISE, message);
-//            connections.broadcast("", notification);
-//        } catch (Exception ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
 }
