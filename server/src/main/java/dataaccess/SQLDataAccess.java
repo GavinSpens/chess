@@ -13,6 +13,12 @@ import static java.sql.Types.NULL;
 import com.google.gson.Gson;
 
 public class SQLDataAccess implements DataAccess {
+    private static SQLDataAccess instance;
+
+    public static SQLDataAccess getInstance() {
+        return instance;
+    }
+
     private final String[] createStatements = {
             """
                     CREATE TABLE IF NOT EXISTS users (
@@ -43,6 +49,7 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public SQLDataAccess() throws DataAccessException {
+        instance = this;
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
