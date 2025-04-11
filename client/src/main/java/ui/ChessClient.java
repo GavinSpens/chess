@@ -136,8 +136,9 @@ public class ChessClient {
         }
     }
 
-    private String resign(String... ignored) {
+    private String resign(String... ignored) throws ResponseException {
         state = State.IN_GAME_NOT_MY_TURN;
+        ws.resign(authToken, currentGame.getId());
         return "Resigned";
     }
 
