@@ -31,23 +31,23 @@ public class WebSocketHandler {
             case CONNECT -> connect(username, command.getGameID(), session);
             case LEAVE -> leave(username);
             case RESIGN -> resign(username, command.getGameID());
-            case MAKE_MOVE -> makeMove(command);
+            case MAKE_MOVE -> makeMove(message);
         }
     }
 
-    private void makeMove(UserGameCommand command) {
-        if (command.getClass() == MakeMoveCommand.class) {
-            GameData game = sqlDataAccess.getGame(command.getGameID());
-            ChessMove move = ((MakeMoveCommand) command).getMove();
-            try {
-                game.game().makeMove(move);
-                sqlDataAccess.updateGame(game);
+    private void makeMove(String message) {
+        MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
 
-                LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, game);
-                connections.broadcast("", notification);
-            } catch (InvalidMoveException | IOException e) {
-                e.printStackTrace();
-            }
+        GameData game = sqlDataAccess.getGame(command.getGameID());
+        ChessMove move = command.getMove();
+        try {
+            game.game().makeMove(move);
+            sqlDataAccess.updateGame(game);
+
+            LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, game);
+            connections.broadcast("", notification);
+        } catch (InvalidMoveException | IOException e) {
+            e.printStackTrace();
         }
     }
 
