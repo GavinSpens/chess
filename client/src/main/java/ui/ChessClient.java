@@ -112,6 +112,7 @@ public class ChessClient {
         return "";
     }
 
+
     private String makeMove(String... params) throws ResponseException {
         if (params.length != 2 && params.length != 3) {
             throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
