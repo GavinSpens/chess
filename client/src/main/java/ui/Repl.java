@@ -1,5 +1,6 @@
 package ui;
 
+import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.NotificationHandler;
 import websocket.messages.Error;
@@ -50,45 +51,35 @@ public class Repl implements NotificationHandler {
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
     }
 
-    private void notifyLoadGame(ServerMessage serverMessage) {
-        if (serverMessage.getClass() == LoadGame.class) {
-            LoadGame loadGame = (LoadGame) serverMessage;
-            try {
-                System.out.print(client.gameString(loadGame.gameData, client.playerColor, null));
-            } catch (ResponseException ignored) {
-                printOopsieDaisy();
-            }
-        } else {
+    private void notifyLoadGame(String message) {
+        LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+        try {
+            client.currentGame = loadGame.gameData;
+//            client.state = State.IN_GAME_MY_TURN;
+            System.out.print(client.gameString(loadGame.gameData, client.playerColor, null));
+        } catch (ResponseException ignored) {
             printOopsieDaisy();
         }
     }
 
-    private void notifyError(ServerMessage serverMessage) {
-        if (serverMessage.getClass() == Error.class) {
-            Error error = (Error) serverMessage;
-            System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
-            System.out.print(error.message);
-            System.out.print(EscapeSequences.RESET_TEXT_COLOR);
-        } else {
-            printOopsieDaisy();
-        }
+    private void notifyError(String message) {
+        Error error = new Gson().fromJson(message, Error.class);
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
+        System.out.print(error.message);
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
     }
 
-    private void notifyNotification(ServerMessage serverMessage) {
-        if (serverMessage.getClass() == Notification.class) {
-            Notification notification = (Notification) serverMessage;
-            System.out.print(notification.getMessage());
-        } else {
-            printOopsieDaisy();
-        }
+    private void notifyNotification(String message) {
+        Notification notification = new Gson().fromJson(message, Notification.class);
+        System.out.print(notification.getMessage());
     }
 
     @Override
-    public void notify(ServerMessage serverMessage) {
+    public void notify(ServerMessage serverMessage, String message) {
         switch (serverMessage.getServerMessageType()) {
-            case ERROR -> notifyError(serverMessage);
-            case NOTIFICATION -> notifyNotification(serverMessage);
-            case LOAD_GAME -> notifyLoadGame(serverMessage);
+            case ERROR -> notifyError(message);
+            case NOTIFICATION -> notifyNotification(message);
+            case LOAD_GAME -> notifyLoadGame(message);
             case null, default -> printOopsieDaisy();
         }
     }

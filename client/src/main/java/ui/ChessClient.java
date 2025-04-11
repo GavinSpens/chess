@@ -16,10 +16,10 @@ public class ChessClient {
     private UserData userData = null;
     private String authToken = null;
     private final ServerFacade server;
-    private State state = State.SIGNED_OUT;
+    public State state = State.SIGNED_OUT;
     private GameData[] games = null;
 
-    private GameData currentGame = null;
+    public GameData currentGame = null;
     public String playerColor = "";
 
     private WebSocketFacade ws = null;
@@ -112,12 +112,12 @@ public class ChessClient {
         return "";
     }
 
-
     private String makeMove(String... params) throws ResponseException {
         if (params.length != 2 && params.length != 3) {
             throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
         }
-        if (state != State.IN_GAME_MY_TURN) {
+//        if (state != State.IN_GAME_MY_TURN) {
+        if (!currentGame.game().getTeamTurn().toString().equalsIgnoreCase(playerColor)) {
             throw new ResponseException(400, "Not your turn");
         }
         try {

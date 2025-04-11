@@ -40,7 +40,7 @@ public class ConnectionManager {
     public void broadcast(String excludeUsername, ServerMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
-            if (c.gameId != connections.get(excludeUsername).gameId) {
+            if (connections.get(excludeUsername) != null && c.gameId != connections.get(excludeUsername).gameId) {
                 continue;
             }
             if (c.session.isOpen()) {
