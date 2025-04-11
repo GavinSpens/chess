@@ -1,11 +1,10 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import websocket.commands.ConnectCommand;
-import websocket.commands.LeaveCommand;
-import websocket.commands.UserGameCommand;
-import websocket.messages.Notification;
+import websocket.commands.*;
+import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -32,8 +31,8 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.notify(notification);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    notificationHandler.notify(serverMessage);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -50,8 +49,8 @@ public class WebSocketFacade extends Endpoint {
         try {
             var command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
+        } catch (IOException ignored) {
+            throw new ResponseException(500, "Error: bad connection to server\n");
         }
     }
 
@@ -60,9 +59,26 @@ public class WebSocketFacade extends Endpoint {
             var command = new LeaveCommand(UserGameCommand.CommandType.LEAVE, authToken, gameId);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
             this.session.close();
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
+        } catch (IOException ignored) {
+            throw new ResponseException(500, "Error: bad connection to server\n");
         }
     }
 
+    public void makeMove(String authToken, int gameId, ChessMove move) throws ResponseException {
+        var command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameId, move);
+        try {
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ignored) {
+            throw new ResponseException(500, "Error: bad connection to server\n");
+        }
+    }
+
+    public void resign(String authToken, int gameId) throws ResponseException {
+        var command = new ResignCommand(UserGameCommand.CommandType.RESIGN, authToken, gameId);
+        try {
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ignored) {
+            throw new ResponseException(500, "Error: bad connection to server\n");
+        }
+    }
 }

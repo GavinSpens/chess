@@ -20,7 +20,7 @@ public class ChessClient {
     private GameData[] games = null;
 
     private GameData currentGame = null;
-    private String playerColor = "";
+    public String playerColor = "";
 
     private WebSocketFacade ws = null;
     private final NotificationHandler repl;
@@ -124,6 +124,8 @@ public class ChessClient {
             currentGame.game().makeMove(move);
             String checks = getChecks();
             state = State.IN_GAME_NOT_MY_TURN;
+
+            ws.makeMove(authToken, currentGame.getId(), move);
 
             return gameString(currentGame, playerColor, null) + checks;
         } catch (ResponseException ignored) {
@@ -337,7 +339,7 @@ public class ChessClient {
                 """;
     }
 
-    private String gameString(GameData gameData, String playerColor, ChessPosition selectedPiecePos) throws ResponseException {
+    public String gameString(GameData gameData, String playerColor, ChessPosition selectedPiecePos) throws ResponseException {
         ArrayList<ChessMove> pieceMoves = new ArrayList<>();
         if (selectedPiecePos != null) {
             pieceMoves = (ArrayList<ChessMove>) gameData.game().validMoves(selectedPiecePos);

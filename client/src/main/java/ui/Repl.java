@@ -1,7 +1,11 @@
 package ui;
 
+import exception.ResponseException;
 import websocket.NotificationHandler;
+import websocket.messages.Error;
+import websocket.messages.LoadGame;
 import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
@@ -40,8 +44,52 @@ public class Repl implements NotificationHandler {
         System.out.print("\n" + ">>> ");
     }
 
+    private void printOopsieDaisy() {
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
+        System.out.print("Oopsie daisy, something went wrong\n");
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+    }
+
+    private void notifyLoadGame(ServerMessage serverMessage) {
+        if (serverMessage.getClass() == LoadGame.class) {
+            LoadGame loadGame = (LoadGame) serverMessage;
+            try {
+                System.out.print(client.gameString(loadGame.gameData, client.playerColor, null));
+            } catch (ResponseException ignored) {
+                printOopsieDaisy();
+            }
+        } else {
+            printOopsieDaisy();
+        }
+    }
+
+    private void notifyError(ServerMessage serverMessage) {
+        if (serverMessage.getClass() == Error.class) {
+            Error error = (Error) serverMessage;
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
+            System.out.print(error.message);
+            System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+        } else {
+            printOopsieDaisy();
+        }
+    }
+
+    private void notifyNotification(ServerMessage serverMessage) {
+        if (serverMessage.getClass() == Notification.class) {
+            Notification notification = (Notification) serverMessage;
+            System.out.print(notification.getMessage());
+        } else {
+            printOopsieDaisy();
+        }
+    }
+
     @Override
-    public void notify(Notification notification) {
-        System.out.print(notification.toString());
+    public void notify(ServerMessage serverMessage) {
+        switch (serverMessage.getServerMessageType()) {
+            case ERROR -> notifyError(serverMessage);
+            case NOTIFICATION -> notifyNotification(serverMessage);
+            case LOAD_GAME -> notifyLoadGame(serverMessage);
+            case null, default -> printOopsieDaisy();
+        }
     }
 }

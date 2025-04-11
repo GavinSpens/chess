@@ -1,17 +1,16 @@
 package server.websocket;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.SQLDataAccess;
-import exception.ResponseException;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
@@ -22,20 +21,21 @@ import java.io.IOException;
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final SQLDataAccess sqlDataAccess = SQLDataAccess.getInstance();
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
+    public void onMessage(Session session, String message) {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+        String username = sqlDataAccess.getAuth(command.getAuthToken()).getUsername();
         switch (command.getCommandType()) {
-            case CONNECT -> connect(command.getUsername(), command.getGameID(), session);
-            case LEAVE -> leave(command.getUsername());
-            case RESIGN -> resign(command.getUsername(), command.getGameID(), session);
-            case MAKE_MOVE -> makeMove(command, session);
+            case CONNECT -> connect(username, command.getGameID(), session);
+            case LEAVE -> leave(username);
+            case RESIGN -> resign(username, command.getGameID());
+            case MAKE_MOVE -> makeMove(command);
         }
     }
 
-    private void makeMove(UserGameCommand command, Session session) {
-        SQLDataAccess sqlDataAccess = SQLDataAccess.getInstance();
+    private void makeMove(UserGameCommand command) {
         if (command.getClass() == MakeMoveCommand.class) {
             GameData game = sqlDataAccess.getGame(command.getGameID());
             ChessMove move = ((MakeMoveCommand) command).getMove();
@@ -43,7 +43,7 @@ public class WebSocketHandler {
                 game.game().makeMove(move);
                 sqlDataAccess.updateGame(game);
 
-                Notification notification = new Notification(ServerMessage.ServerMessageType.LOAD_GAME, "");
+                LoadGame notification = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, game);
                 connections.broadcast("", notification);
             } catch (InvalidMoveException | IOException e) {
                 e.printStackTrace();
@@ -55,8 +55,14 @@ public class WebSocketHandler {
         connections.add(username, gameId, session);
         var message = String.format("%s joined the game", username);
         var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+
+        var loadGame = new LoadGame(
+                ServerMessage.ServerMessageType.LOAD_GAME,
+                sqlDataAccess.getGame(gameId));
+
         try {
             connections.broadcast(username, notification);
+            connections.broadcastToUsername(username, loadGame);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,16 +70,32 @@ public class WebSocketHandler {
 
     private void leave(String username) {
         var message = String.format("%s left the game", username);
+        connections.remove(username);
+        var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
         try {
-            connections.remove(username);
-            var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
             connections.broadcast(username, notification);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void resign(String username, int gameId, Session session) {
-        connections.broadcast(username, );
+    private void resign(String username, int gameId) {
+        GameData game = sqlDataAccess.getGame(gameId);
+
+        Notification notification = new Notification(
+                ServerMessage.ServerMessageType.NOTIFICATION,
+                username + " has resigned.\nYOU WIN\n"
+        );
+        LoadGame loadGame = new LoadGame(
+                ServerMessage.ServerMessageType.LOAD_GAME,
+                game
+        );
+
+        try {
+            connections.broadcast("", loadGame);
+            connections.broadcast(username, notification);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

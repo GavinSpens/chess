@@ -1,8 +1,6 @@
 package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
-import org.glassfish.grizzly.utils.Pair;
-import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -19,6 +17,24 @@ public class ConnectionManager {
 
     public void remove(String username) {
         connections.remove(username);
+    }
+
+    public void broadcastToUsername(String username, ServerMessage message) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (!c.username.equals(username)) {
+                    c.send(message.toString());
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.username);
+        }
     }
 
     public void broadcast(String excludeUsername, ServerMessage message) throws IOException {
