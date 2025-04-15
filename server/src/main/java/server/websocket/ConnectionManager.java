@@ -17,14 +17,15 @@ public class ConnectionManager {
 
     public void remove(String username) {
         connections.remove(username);
+
     }
 
     public void broadcastToUsername(String username, ServerMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.username.equals(username)) {
-                    c.send(message.toString());
+                if (c.username.equals(username)) {
+                    c.send(message.toJson());
                 }
             } else {
                 removeList.add(c);
@@ -45,7 +46,7 @@ public class ConnectionManager {
             }
             if (c.session.isOpen()) {
                 if (!c.username.equals(excludeUsername)) {
-                    c.send(message.toString());
+                    c.send(message.toJson());
                 }
             } else {
                 removeList.add(c);

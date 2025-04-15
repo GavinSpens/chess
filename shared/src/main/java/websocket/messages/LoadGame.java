@@ -4,10 +4,10 @@ import com.google.gson.Gson;
 import model.GameData;
 
 public class LoadGame extends ServerMessage {
-    public GameData gameData;
+    public GameData game;
     public LoadGame(ServerMessageType type, GameData gameData) {
         super(type);
-        this.gameData = gameData;
+        this.game = gameData;
     }
 
     @Override

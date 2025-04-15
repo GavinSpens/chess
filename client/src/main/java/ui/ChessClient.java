@@ -287,7 +287,7 @@ public class ChessClient {
                 ws.connectToGame(authToken, game.getId());
 
 
-                return gameString(game, params[1], null);
+                return "Joined game as " + playerColor;
 
             } catch (IndexOutOfBoundsException e) {
                 throw new ResponseException(400, listGames(""));

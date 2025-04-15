@@ -4,6 +4,8 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.*;
 
+import java.util.Objects;
+
 public class GameService {
     private final DataAccess dataAccess;
 
@@ -31,7 +33,7 @@ public class GameService {
         String gameName = createGameRequest.getGameName();
 
         GameData gameData = new GameData(
-                gameID, null, null, gameName, new ChessGame());
+                gameID, null, null, gameName, new ChessGame(), false);
         dataAccess.createGame(gameData);
         gameID = dataAccess.getGames()[gameID - 1].getId();
         return new CreateGameResult(gameID);
@@ -58,12 +60,12 @@ public class GameService {
         }
 
         if (playerColor.equalsIgnoreCase("WHITE")) {
-            if (whiteUsername != null) {
+            if (whiteUsername != null && !Objects.equals(whiteUsername, myUsername)) {
                 throw new RuntimeException("Error: Already Taken");
             }
             whiteUsername = myUsername;
         } else if (playerColor.equalsIgnoreCase("BLACK")) {
-            if (blackUsername != null) {
+            if (blackUsername != null && !Objects.equals(whiteUsername, myUsername)) {
                 throw new RuntimeException("Error: Already Taken");
             }
             blackUsername = myUsername;
@@ -71,12 +73,16 @@ public class GameService {
             throw new Exception("Error: Bad Request");
         }
 
-        GameData gameData = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+        GameData gameData = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game(), false);
         dataAccess.updateGame(gameData);
         return new CreateGameResult(game.gameID());
     }
 
     public void clear() {
-        dataAccess.deleteAll();
+        try {
+            dataAccess.deleteAll();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

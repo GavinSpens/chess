@@ -6,11 +6,11 @@ import java.util.Objects;
 
 public record GameData(
         Integer gameID, String whiteUsername,
-        String blackUsername, String gameName, ChessGame game
-        ) {
+        String blackUsername, String gameName, ChessGame game,
+        boolean end) {
 
     public GameData setId(Integer gameID) {
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game, false);
     }
 
     public Integer getId() {

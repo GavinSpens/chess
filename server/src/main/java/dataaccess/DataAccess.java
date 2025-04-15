@@ -6,25 +6,25 @@ import model.UserData;
 
 public interface DataAccess {
 
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 
-    AuthData getAuth(String authToken);
+    AuthData getAuth(String authToken) throws DataAccessException;
 
-    GameData getGame(int gameId);
+    GameData getGame(int gameId) throws DataAccessException;
 
-    GameData[] getGames();
+    GameData[] getGames() throws DataAccessException;
 
-    int countGames();
+    int countGames() throws DataAccessException;
 
-    void createUser(UserData user);
+    void createUser(UserData user) throws DataAccessException;
 
-    void createAuth(AuthData auth);
+    void createAuth(AuthData auth) throws DataAccessException;
 
-    void createGame(GameData game);
+    void createGame(GameData game) throws DataAccessException;
 
-    void updateGame(GameData game);
+    void updateGame(GameData game) throws DataAccessException;
 
-    void deleteAuth(String authToken);
+    void deleteAuth(String authToken) throws DataAccessException;
 
-    void deleteAll();
+    void deleteAll() throws DataAccessException;
 }

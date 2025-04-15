@@ -20,7 +20,7 @@ public class UserService {
         return new UserData(userData.getUsername(), hashedPassword, userData.getEmail());
     }
 
-    private boolean verifyPassword(LoginRequest loginRequest) {
+    private boolean verifyPassword(LoginRequest loginRequest) throws DataAccessException {
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
         UserData userData = dataAccess.getUser(username);
@@ -42,14 +42,19 @@ public class UserService {
             throw new Exception("Error: Bad Request");
         }
 
-        UserData userData = dataAccess.getUser(username);
+        UserData userData = null;
+        try {
+            userData = dataAccess.getUser(username);
+        } catch (DataAccessException e){
+            // Ignore
+        }
         if (userData != null) {
             throw new DataAccessException("Error: already taken");
         }
 
         userData = new UserData(username, password, email);
         userData = hashPassword(userData);
-        
+
         dataAccess.createUser(userData);
 
         String authToken = createAuthToken();

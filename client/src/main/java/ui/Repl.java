@@ -54,9 +54,9 @@ public class Repl implements NotificationHandler {
     private void notifyLoadGame(String message) {
         LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
         try {
-            client.currentGame = loadGame.gameData;
+            client.currentGame = loadGame.game;
 //            client.state = State.IN_GAME_MY_TURN;
-            System.out.print(client.gameString(loadGame.gameData, client.playerColor, null));
+            System.out.print(client.gameString(loadGame.game, client.playerColor, null));
         } catch (ResponseException ignored) {
             printOopsieDaisy();
         }
@@ -65,7 +65,7 @@ public class Repl implements NotificationHandler {
     private void notifyError(String message) {
         Error error = new Gson().fromJson(message, Error.class);
         System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
-        System.out.print(error.message);
+        System.out.print(error.errorMessage);
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
     }
 
@@ -76,11 +76,13 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void notify(ServerMessage serverMessage, String message) {
+        System.out.print("\n");
         switch (serverMessage.getServerMessageType()) {
             case ERROR -> notifyError(message);
             case NOTIFICATION -> notifyNotification(message);
             case LOAD_GAME -> notifyLoadGame(message);
             case null, default -> printOopsieDaisy();
         }
+        printPrompt();
     }
 }

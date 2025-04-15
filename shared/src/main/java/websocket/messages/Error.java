@@ -3,10 +3,10 @@ package websocket.messages;
 import com.google.gson.Gson;
 
 public class Error extends ServerMessage {
-    public String message;
+    public String errorMessage;
     public Error(ServerMessageType type, String message) {
         super(type);
-        this.message = message;
+        this.errorMessage = message;
     }
 
     @Override

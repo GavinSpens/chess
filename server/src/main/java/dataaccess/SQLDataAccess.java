@@ -63,7 +63,7 @@ public class SQLDataAccess implements DataAccess {
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password, email FROM users WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -71,17 +71,18 @@ public class SQLDataAccess implements DataAccess {
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUserData(rs);
+                    } else {
+                        throw new Exception("");
                     }
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("No user with username " + username);
         }
-        return null;
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -89,17 +90,18 @@ public class SQLDataAccess implements DataAccess {
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readAuthData(rs);
+                    } else {
+                        throw new Exception("");
                     }
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("Error: access denied");
         }
-        return null;
     }
 
     @Override
-    public GameData getGame(int gameId) {
+    public GameData getGame(int gameId) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT id, json FROM games WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -107,17 +109,18 @@ public class SQLDataAccess implements DataAccess {
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readGameData(rs);
+                    } else {
+                        throw new Exception("");
                     }
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("cannot get game with id " + gameId);
         }
-        return null;
     }
 
     @Override
-    public GameData[] getGames() {
+    public GameData[] getGames() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT id, json FROM games";
             try (var ps = conn.prepareStatement(statement)) {
@@ -131,13 +134,12 @@ public class SQLDataAccess implements DataAccess {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("Cannot retrieve games");
         }
-        return new GameData[0];
     }
 
     @Override
-    public int countGames() {
+    public int countGames() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT id, json FROM games";
             try (var ps = conn.prepareStatement(statement)) {
@@ -150,63 +152,42 @@ public class SQLDataAccess implements DataAccess {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("Cannot retrieve games");
         }
-        return 0;
     }
 
     @Override
-    public void createUser(UserData user) {
+    public void createUser(UserData user) throws DataAccessException {
         String statementString = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        try {
-            executeUpdate(statementString, user.getUsername(), user.getPassword(), user.getEmail());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
+        executeUpdate(statementString, user.getUsername(), user.getPassword(), user.getEmail());
     }
 
     @Override
-    public void createAuth(AuthData auth) {
+    public void createAuth(AuthData auth) throws DataAccessException {
         String statementString = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
-        try {
-            executeUpdate(statementString, auth.getAuthToken(), auth.getUsername());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
+        executeUpdate(statementString, auth.getAuthToken(), auth.getUsername());
     }
 
     @Override
-    public void createGame(GameData game) {
+    public void createGame(GameData game) throws DataAccessException {
         String statementString = "INSERT INTO games (json) VALUES (?)";
-        try {
-            executeUpdate(statementString, game);
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
+        executeUpdate(statementString, game);
     }
 
     @Override
-    public void updateGame(GameData game) {
+    public void updateGame(GameData game) throws DataAccessException {
         String statementString = "UPDATE games SET json=? WHERE id=?";
-        try {
-            executeUpdate(statementString, game, game.getId());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
+        executeUpdate(statementString, game, game.getId());
     }
 
     @Override
-    public void deleteAuth(String authToken) {
+    public void deleteAuth(String authToken) throws DataAccessException {
         String statementString = "DELETE FROM auths WHERE authToken=?";
-        try {
-            executeUpdate(statementString, authToken);
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
+        executeUpdate(statementString, authToken);
     }
 
     @Override
-    public void deleteAll() {
+    public void deleteAll() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement("SET FOREIGN_KEY_CHECKS = 0")) {
                 ps.executeUpdate();
@@ -221,7 +202,7 @@ public class SQLDataAccess implements DataAccess {
                 ps.executeUpdate();
             }
         } catch (DataAccessException | SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException("Error: cannot delete all data");
         }
     }
 
@@ -251,15 +232,16 @@ public class SQLDataAccess implements DataAccess {
             var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS);
             for (var i = 0; i < params.length; i++) {
                 var param = params[i];
-                if (param instanceof String p) {
-                    ps.setString(i + 1, p);
-                } else if (param instanceof Integer p) {
-                    ps.setInt(i + 1, p);
-                } else if (param instanceof GameData p) {
-                    String json = new Gson().toJson(p);
-                    ps.setString(i + 1, json);
-                } else if (param == null) {
-                    ps.setNull(i + 1, NULL);
+                switch (param) {
+                    case String p -> ps.setString(i + 1, p);
+                    case Integer p -> ps.setInt(i + 1, p);
+                    case GameData p -> {
+                        String json = new Gson().toJson(p);
+                        ps.setString(i + 1, json);
+                    }
+                    case null -> ps.setNull(i + 1, NULL);
+                    default -> {
+                    }
                 }
             }
             ps.executeUpdate();
