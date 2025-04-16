@@ -35,12 +35,8 @@ public class Server {
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
-
         Spark.staticFiles.location("web");
-
         Spark.webSocket("/ws", webSocketHandler);
-
-        // Register your endpoints and handle exceptions here.
         Spark.post("/user", (req, res) -> {
             RegisterResult result = new RegisterResult();
             try {
@@ -54,7 +50,6 @@ public class Server {
             }
             return new Gson().toJson(result);
         });
-
         Spark.post("/session", (req, res) -> {
             LoginResult result = new LoginResult();
             try {
@@ -65,7 +60,6 @@ public class Server {
             }
             return new Gson().toJson(result);
         });
-
         Spark.delete("/session", (req, res) -> {
             BaseResult result = new BaseResult();
             try {
@@ -76,7 +70,6 @@ public class Server {
             }
             return new Gson().toJson(result);
         });
-
         Spark.get("/game", (req, res) -> {
             ListGamesResult result = new ListGamesResult();
             try {
@@ -87,7 +80,6 @@ public class Server {
             }
             return new Gson().toJson(result);
         });
-
         Spark.post("/game", (req, res) -> {
             CreateGameResult result = new CreateGameResult();
             try {
@@ -98,7 +90,6 @@ public class Server {
             }
             return new Gson().toJson(result);
         });
-
         Spark.put("/game", (req, res) -> {
             CreateGameResult result = new CreateGameResult();
             try {
@@ -115,23 +106,16 @@ public class Server {
             }
             return new Gson().toJson(result);
         });
-
         Spark.delete("/db", (req, res) -> {
             BaseResult result = new BaseResult();
             gameHandler.clear();
             return new Gson().toJson(result);
         });
-
-        // home page
         Spark.get("/", (req, res) -> {
             res.redirect("/index.html");
             return null;
         });
-
-        // This line initializes the server and can be removed once you have a
-        // functioning endpoint
         Spark.init();
-
         Spark.awaitInitialization();
         return Spark.port();
     }
