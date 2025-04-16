@@ -1,9 +1,6 @@
 package ui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import chess.*;
 import exception.ResponseException;
@@ -41,13 +38,13 @@ public class ChessClient {
             case "login", "l" -> login(params);
             case "logout" -> logout(params);
             case "listgames", "list" -> listGames(params);
-            case "creategame", "create" -> createGame(params);
-            case "joingame", "join" -> joinGame(params);
-            case "observegame", "o" -> observeGame(params);
+            case "creategame", "create", "c" -> createGame(params);
+            case "joingame", "join", "j" -> joinGame(params);
+            case "observegame", "o", "observe" -> observeGame(params);
             case "redraw" -> redraw(params);
-            case "highlight", "h" -> highlightLegalMoves(params);
+            case "highlight" -> highlightLegalMoves(params);
             case "leave" -> leave(params);
-            case "makemove" -> makeMove(params);
+            case "makemove", "m", "move" -> makeMove(params);
             case "resign" -> resign(params);
             case "quit", "q" -> "quit";
             default -> help();
@@ -84,34 +81,6 @@ public class ChessClient {
         return new ChessMove(fromPos, toPos, null);
     }
 
-    private String getChecks() {
-        if (currentGame.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
-            return "White is in Checkmate.\n"
-                    + EscapeSequences.SET_TEXT_BLINKING
-                    + EscapeSequences.SET_TEXT_COLOR_GREEN
-                    + "BLACK WINS\n";
-        }
-        if (currentGame.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-            return "Black is in Checkmate.\n"
-                    + EscapeSequences.SET_TEXT_BLINKING
-                    + EscapeSequences.SET_TEXT_COLOR_GREEN
-                    + "WHITE WINS\n";
-        }
-        if (currentGame.game().isInCheck(ChessGame.TeamColor.WHITE)) {
-            return EscapeSequences.SET_TEXT_BLINKING + "White is in Check\n";
-        }
-        if (currentGame.game().isInCheck(ChessGame.TeamColor.BLACK)) {
-            return EscapeSequences.SET_TEXT_BLINKING + "Black is in Check\n";
-        }
-        if (currentGame.game().isInStalemate(ChessGame.TeamColor.BLACK)
-                || currentGame.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
-            return EscapeSequences.SET_TEXT_BLINKING
-                    + EscapeSequences.SET_TEXT_COLOR_GREEN
-                    + "STALEMATE\n";
-        }
-        return "";
-    }
-
     private String makeMove(String... params) throws ResponseException {
         if (params.length != 2 && params.length != 3) {
             throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
@@ -122,13 +91,19 @@ public class ChessClient {
         }
         try {
             ChessMove move = getMoveFromStr(params);
+
+            if (currentGame.end()) {
+                return EscapeSequences.SET_TEXT_COLOR_RED
+                        + "Game is over.";
+            }
+
             currentGame.game().makeMove(move);
-            String checks = getChecks();
             state = State.IN_GAME_NOT_MY_TURN;
 
             ws.makeMove(authToken, currentGame.getId(), move);
 
-            return gameString(currentGame, playerColor, null) + checks;
+//            return gameString(currentGame, playerColor, null);
+            return "";
         } catch (ResponseException ignored) {
             throw new ResponseException(400, "FAILED\nExpected: <FROM_POS> <TO_POS> <PAWN_PROMOTION_PIECE_TYPE?>");
         } catch (InvalidMoveException e) {
@@ -137,6 +112,29 @@ public class ChessClient {
     }
 
     private String resign(String... ignored) throws ResponseException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print(
+                EscapeSequences.SET_TEXT_COLOR_RED
+                        + "Are you sure you want to resign? (y/n)\n"
+                        + EscapeSequences.RESET_TEXT_COLOR
+                        + ">>> "
+        );
+        switch (scanner.nextLine()) {
+            case "y", "Y", "yes", "Yes", "YES" -> {
+                // continue
+            }
+            case "n", "N", "no", "No", "NO" -> {
+                return "Resignation cancelled";
+            }
+            default -> {
+                System.out.print(
+                        EscapeSequences.SET_TEXT_COLOR_RED
+                        + "Please enter y or n\n"
+                );
+                return resign("");
+            }
+        }
+
         state = State.IN_GAME_NOT_MY_TURN;
         ws.resign(authToken, currentGame.getId());
         return "Resigned";
@@ -180,6 +178,9 @@ public class ChessClient {
         assertInGame();
         if (params.length == 1) {
             ChessPosition selectedPiece = getPosFromStr(params[0]);
+            if (currentGame.game().getBoard().getPiece(selectedPiece) == null) {
+                throw new ResponseException(400, "No piece at given position");
+            }
             return gameString(currentGame, playerColor, selectedPiece);
         }
         throw new ResponseException(400, "FAILED\nExpected: <POS>\nEXAMPLES: A1 or h8\n");
@@ -299,6 +300,8 @@ public class ChessClient {
     public String observeGame(String... params) throws ResponseException {
         if (params.length == 1) {
             assertSignedIn();
+            listGames("");
+
             var id = Integer.parseInt(params[0]);
             GameData game = games[id - 1];
             state = State.OBSERVING;

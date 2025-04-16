@@ -2,6 +2,7 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -92,6 +93,46 @@ public class WebSocketHandler {
         }
     }
 
+    private String getChecks(GameData currentGame) {
+        if (currentGame.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            return String.format(
+                    """
+                    WHITE(%s) is in Checkmate.
+                    BLACK(%s) WINS
+                    """,
+                    currentGame.whiteUsername(),
+                    currentGame.blackUsername()
+            );
+        }
+        if (currentGame.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            return String.format(
+                    """
+                    BLACK(%s) is in Checkmate.
+                    WHITE(%s) WINS
+                    """,
+                    currentGame.blackUsername(),
+                    currentGame.whiteUsername()
+            );
+        }
+        if (currentGame.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+            return String.format(
+                    "WHITE(%s) is in Check\n",
+                    currentGame.whiteUsername()
+            );
+        }
+        if (currentGame.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+            return String.format(
+                    "BLACK(%s) is in Check\n",
+                    currentGame.blackUsername()
+            );
+        }
+        if (currentGame.game().isInStalemate(ChessGame.TeamColor.BLACK)
+                || currentGame.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
+            return "STALEMATE\n";
+        }
+        return "";
+    }
+
     private void makeMove(String message) throws DataAccessException {
         MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
 
@@ -103,19 +144,55 @@ public class WebSocketHandler {
 
             validateMove(game, move, username);
 
+            String moveFrom = getStrFromPos(move.getStartPosition());
+            String moveTo = getStrFromPos(move.getEndPosition());
+            Notification notification = new Notification(
+                    ServerMessage.ServerMessageType.NOTIFICATION,
+                    String.format(
+                            "%s(%s) moved %s to %s",
+                            game.game().getTeamTurn(),
+                            username,
+                            moveFrom,
+                            moveTo
+                    )
+            );
+
             game.game().makeMove(move);
             sqlDataAccess.updateGame(game);
 
             LoadGame loadGame = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, game);
             connections.broadcastToGameExcludeUsername("", loadGame, game.getId());
-            Notification notification = new Notification(
-                    ServerMessage.ServerMessageType.NOTIFICATION,
-                    game.game().getTeamTurn() + " to move"
-            );
             connections.broadcastToGameExcludeUsername(username, notification, game.gameID());
+
+            String checks = getChecks(game);
+            if (!checks.isEmpty()) {
+                notification = new Notification(
+                        ServerMessage.ServerMessageType.NOTIFICATION,
+                        checks
+                );
+                connections.broadcastToGameExcludeUsername("", notification, game.gameID());
+            }
         } catch (InvalidMoveException | IOException e) {
             broadcastError(username, new Exception("Unable to make specified move"));
         }
+    }
+
+    private String getStrFromPos(ChessPosition pos) {
+        int row = pos.getRow();
+        int col = pos.getColumn();
+
+        String colStr = switch (col) {
+            case 1: yield "a";
+            case 2: yield "b";
+            case 3: yield "c";
+            case 4: yield "d";
+            case 5: yield "e";
+            case 6: yield "f";
+            case 7: yield "g";
+            case 8: yield "h";
+            default: throw new RuntimeException("Can't get str from pos");
+        };
+        return colStr + row;
     }
 
     private void connect(String username, int gameId, Session session) throws DataAccessException {
