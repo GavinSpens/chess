@@ -47,10 +47,10 @@ public class Server {
                 result = userHandler.register(req, res);
             } catch (DataAccessException e) {
                 res.status(403);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             } catch (Exception e) {
                 res.status(400);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             }
             return new Gson().toJson(result);
         });
@@ -61,7 +61,7 @@ public class Server {
                 result = userHandler.login(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             }
             return new Gson().toJson(result);
         });
@@ -83,7 +83,7 @@ public class Server {
                 result = gameHandler.listGames(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             }
             return new Gson().toJson(result);
         });
@@ -94,7 +94,7 @@ public class Server {
                 result = gameHandler.createGame(req, res);
             } catch (DataAccessException e) {
                 res.status(401);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             }
             return new Gson().toJson(result);
         });
@@ -105,13 +105,13 @@ public class Server {
                 result = gameHandler.joinGame(req, res);
             } catch (RuntimeException e) {
                 res.status(403);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             } catch (DataAccessException e) {
                 res.status(401);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             } catch (Exception e) {
                 res.status(400);
-                result.setMessage(e.getMessage());
+                result.setMessage("ERROR\n" + e.getMessage());
             }
             return new Gson().toJson(result);
         });

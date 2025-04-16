@@ -45,8 +45,10 @@ public class GameService {
             throw new DataAccessException("Error: Unauthorized");
         }
 
-        GameData game = dataAccess.getGame(joinGameRequest.getGameID());
-        if (game == null) {
+        GameData game;
+        try {
+            game = dataAccess.getGame(joinGameRequest.getGameID());
+        } catch (DataAccessException e) {
             throw new Exception("Error: No game with given ID");
         }
 
