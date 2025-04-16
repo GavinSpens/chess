@@ -120,8 +120,8 @@ public class WebSocketHandler {
 
     private void connect(String username, int gameId, Session session) throws DataAccessException {
         connections.add(username, gameId, session);
-        var message = String.format("%s joined the game", username);
-        var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        GameData gameData = sqlDataAccess.getGame(gameId);
+        var notification = getNotification(username, gameData);
 
         var loadGame = new LoadGame(
                 ServerMessage.ServerMessageType.LOAD_GAME,
@@ -133,6 +133,19 @@ public class WebSocketHandler {
         } catch (IOException e) {
             broadcastError(username, new Exception("Error: Unable to connect to game"));
         }
+    }
+
+    private static Notification getNotification(String username, GameData gameData) {
+        String colorOrObserver;
+        if (Objects.equals(gameData.whiteUsername(), username)) {
+            colorOrObserver = "WHITE";
+        } else if (Objects.equals(gameData.blackUsername(), username)) {
+            colorOrObserver = "BLACK";
+        } else {
+            colorOrObserver = "OBSERVER";
+        }
+        var message = String.format("%s joined the game as %s", username, colorOrObserver);
+        return new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
     }
 
     private void leave(String username) {

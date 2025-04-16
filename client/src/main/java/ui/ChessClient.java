@@ -305,8 +305,9 @@ public class ChessClient {
             currentGame = game;
             playerColor = "WHITE";
             ws = new WebSocketFacade(url, repl);
+            ws.connectToGame(authToken, game.getId());
 
-            return gameString(game, playerColor, null);
+            return "Observing game: " + game.gameName();
         }
         throw new ResponseException(400, "FAILED\nExpected: <GAME_ID");
     }

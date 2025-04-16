@@ -55,7 +55,6 @@ public class Repl implements NotificationHandler {
         LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
         try {
             client.currentGame = loadGame.game;
-//            client.state = State.IN_GAME_MY_TURN;
             System.out.print(client.gameString(loadGame.game, client.playerColor, null));
         } catch (ResponseException ignored) {
             printOopsieDaisy();
