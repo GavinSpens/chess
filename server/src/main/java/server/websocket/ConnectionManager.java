@@ -38,10 +38,10 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(String excludeUsername, ServerMessage message) throws IOException {
+    public void broadcastToGameExcludeUsername(String excludeUsername, ServerMessage message, int gameId) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
-            if (connections.get(excludeUsername) != null && c.gameId != connections.get(excludeUsername).gameId) {
+            if (c.gameId != gameId) {
                 continue;
             }
             if (c.session.isOpen()) {

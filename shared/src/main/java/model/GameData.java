@@ -10,7 +10,7 @@ public record GameData(
         boolean end) {
 
     public GameData setId(Integer gameID) {
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game, false);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game, end);
     }
 
     public Integer getId() {

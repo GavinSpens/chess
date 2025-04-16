@@ -107,12 +107,12 @@ public class WebSocketHandler {
             sqlDataAccess.updateGame(game);
 
             LoadGame loadGame = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME, game);
-            connections.broadcast("", loadGame);
+            connections.broadcastToGameExcludeUsername("", loadGame, game.getId());
             Notification notification = new Notification(
                     ServerMessage.ServerMessageType.NOTIFICATION,
                     game.game().getTeamTurn() + " to move"
             );
-            connections.broadcast(username, notification);
+            connections.broadcastToGameExcludeUsername(username, notification, game.gameID());
         } catch (InvalidMoveException | IOException e) {
             broadcastError(username, new Exception("Unable to make specified move"));
         }
@@ -128,7 +128,7 @@ public class WebSocketHandler {
                 sqlDataAccess.getGame(gameId));
 
         try {
-            connections.broadcast(username, notification);
+            connections.broadcastToGameExcludeUsername(username, notification, gameId);
             connections.broadcastToUsername(username, loadGame);
         } catch (IOException e) {
             broadcastError(username, new Exception("Error: Unable to connect to game"));
@@ -152,7 +152,7 @@ public class WebSocketHandler {
             );
             sqlDataAccess.updateGame(data);
 
-            connections.broadcast(username, notification);
+            connections.broadcastToGameExcludeUsername(username, notification, gameId);
         } catch (IOException | DataAccessException e) {
             broadcastError(username, new Exception("Unable to leave game"));
         }
@@ -198,7 +198,7 @@ public class WebSocketHandler {
 
         try {
             connections.broadcastToUsername(username, clientNotification);
-            connections.broadcast(username, notification);
+            connections.broadcastToGameExcludeUsername(username, notification, gameId);
         } catch (IOException e) {
             broadcastError(username, new Exception("Unable to broadcast resignation"));
         }
